@@ -23,7 +23,7 @@
 
     header { background: var(--bg-card-header); border-bottom: 1px solid var(--border-color); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: var(--accent-cyan); }
-    .root-badge { background: rgba(0, 255, 102, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+    .badge { background: rgba(0, 255, 102, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
 
     .tab-bar { display: flex; background: #0d121c; border-bottom: 1px solid var(--border-color); padding: 4px; gap: 4px; }
     .tab-btn { flex: 1; padding: 8px; text-align: center; background: transparent; border: none; color: var(--text-muted); font-weight: 700; font-size: 11px; border-radius: 6px; cursor: pointer; }
@@ -70,7 +70,6 @@
     .lyrics-controls { display: flex; gap: 4px; align-items: center; justify-content: space-between; }
 
     canvas { width: 100%; height: 100px; background: #05070a; border-radius: 6px; border: 1px solid var(--border-color); display: block; }
-    pre { background: #05070a; border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; font-family: monospace; font-size: 10px; color: #38bdf8; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
     .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
     .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
     .hidden { display: none !important; }
@@ -82,7 +81,7 @@
   <header>
     <div class="brand">
       <span>🎛 VOICEMEETER MOBILE</span>
-      <span class="root-badge">ISOLATED GATE ENGINE</span>
+      <span class="badge">ISOLATED GATE ENGINE</span>
     </div>
     <button id="btn-power" onclick="toggleEngine()" class="btn btn-cyan">START ENGINE</button>
   </header>
@@ -90,10 +89,10 @@
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('mixer')" id="tab-mixer">Live Mixer</button>
     <button class="tab-btn" onclick="switchTab('dsp')" id="tab-dsp">DSP / Vocal FX</button>
-    <button class="tab-btn" onclick="switchTab('root')" id="tab-root">Android Root Scripts</button>
   </div>
 
   <main>
+    <!-- VIEW 1: LIVE MIXER -->
     <div id="view-mixer">
       <div class="card">
         <div class="card-title">
@@ -193,6 +192,7 @@
           </div>
         </div>
       </div>
+
       <div class="card" style="margin-top: 6px;">
         <div class="card-title">
           <span>⏺ Record B1 (Lagu + Suara)</span>
@@ -204,14 +204,13 @@
           <div id="rec-info" style="font-size:10px; color:var(--text-muted);"></div>
           <button class="btn btn-green" onclick="saveRecording()">💾 Simpan MP3 (128 kbps)</button>
         </div>
-        <div style="font-size:9px; color:var(--text-muted);">Yang direkam = semua channel yang rute B1-nya aktif (mic + lagu), sesuai fader dan slider B1. Disimpan sebagai MP3 128 kbps (±1 MB per menit). Ada limiter otomatis supaya suara nggak pecah.</div>
+        <div style="font-size:9px; color:var(--text-muted);">Yang direkam = semua channel yang rute B1-nya aktif (mic + lagu), sesuai fader dan slider B1. Disimpan sebagai MP3 128 kbps.</div>
       </div>
     </div>
 
     <!-- VIEW 2: DSP EFFECTS (ISOLATED FIRST-LINE GATE) -->
     <div id="view-dsp" class="hidden">
-      
-      <!-- 1. MASTER SWITCH DSP -->
+      <!-- MASTER SWITCH DSP -->
       <div class="card">
         <div class="card-title">DSP Global Master Switch</div>
         <div class="toggle-container">
@@ -223,7 +222,7 @@
         </div>
       </div>
 
-      <!-- 2. AUDIBILITY KNOB (BERDIRI SENDIRI DI DEPAN) -->
+      <!-- AUDIBILITY KNOB (ISOLATED GATE) -->
       <div class="card">
         <div class="card-title">Audibility Gate Control (mandiri, tidak ikut Master Switch)</div>
         <div class="slider-group">
@@ -261,14 +260,13 @@
           <div class="slider-info"><span>Retune Speed (0 = efek robot T-Pain)</span><span id="val-tune-speed">20%</span></div>
           <input type="range" min="0" max="100" step="5" value="20" oninput="setTuneSpeed(this.value)">
         </div>
-        <div style="font-size:9px; color:var(--text-muted);">Pakai headset. Auto-Tune menambah delay ±20–40 ms. Nada yang sedang dinyanyikan tampil di kanan atas kartu ini.</div>
+        <div style="font-size:9px; color:var(--text-muted);">Pakai headset. Auto-Tune menambah delay ±20–40 ms.</div>
       </div>
 
-      <!-- 3. VOCAL DYNAMICS & EQUALIZER -->
+      <!-- VOCAL DYNAMICS & EQUALIZER -->
       <div class="card">
         <div class="card-title">Dynamics & Vocal Shaping</div>
 
-        <!-- COMPRESSOR SECTION -->
         <div style="background:#0a0d14; padding:8px; border-radius:6px; border:1px solid #1a2234;" class="slider-group">
           <div class="toggle-container" style="background:transparent; padding:0; border:none; margin-bottom:6px;">
             <span style="font-weight: 700; color: var(--accent-orange);">🎙️ VOCAL DYNAMICS COMPRESSOR</span>
@@ -313,17 +311,6 @@
           <div class="slider-info"><span>Vocal Reverb Room Size</span><span id="val-reverb">30%</span></div>
           <input type="range" min="0" max="0.8" step="0.05" value="0.3" oninput="setReverb(this.value)">
         </div>
-      </div>
-    </div>
-
-    <div id="view-root" class="hidden">
-      <div class="card">
-        <div class="card-title">Root System Patch Generator</div>
-        <pre>su
-mount -o remount,rw /system
-killall audioserver</pre>
-        <div style="font-size:10px; color:var(--text-muted);">Catatan: ini hanya contoh perintah. Halaman web tidak bisa membuat virtual mic, dan skrip ini tidak mengubah apa pun di app.</div>
-        <button class="btn btn-cyan" onclick="copyCode()">📋 Copy Root Shell Script</button>
       </div>
     </div>
   </main>
@@ -524,7 +511,6 @@ killall audioserver</pre>
       } catch (err) { stopMic(); alert("Microphone Access Denied: " + err.message); }
     }
 
-    // ROUTING KABEL YANG SUDAH DIPISAH DAN DIURUTKAN DENGAN PRESISI
     function connectMicNode() {
       if (!micSourceNode) return;
       try {
@@ -535,7 +521,7 @@ killall audioserver</pre>
         if (tuneNode) tuneNode.disconnect();
       } catch(e){}
 
-      // 1. GATE: selalu paling depan, berdiri sendiri (tidak ikut DSP Master Switch)
+      // 1. GATE: Selalu paling depan (Isolasi Noise)
       micSourceNode.connect(gateAnalyser);
       micSourceNode.connect(gateGainNode);
       let lastNode = gateGainNode;
@@ -546,7 +532,7 @@ killall audioserver</pre>
         lastNode = compressorNode;
       }
 
-      // 3. AUTO-TUNE: berdiri sendiri (tidak ikut DSP Master Switch)
+      // 3. AUTO-TUNE (Mandiri)
       if (isTuneActive && tuneNode) {
         lastNode.connect(tuneNode);
         lastNode = tuneNode;
@@ -562,7 +548,6 @@ killall audioserver</pre>
         eqHigh.connect(delayNode);
         eqHigh.connect(reverbNode);
       } else {
-        // DSP off: hanya lewat gate (+ auto-tune kalau aktif), langsung ke channel
         lastNode.connect(chGains[0]);
       }
     }
@@ -572,7 +557,6 @@ killall audioserver</pre>
     let recNode = null, recSink = null, recChunksL = [], recChunksR = [], recRate = 48000;
     let recTimer = null, recStart = 0, recUrl = null, recPCM = null, recFinish = null;
 
-    // Limiter di output A1 dan B1 supaya penjumlahan mic + lagu nggak clipping/pecah
     function makeLimiter() {
       const c = audioCtx.createDynamicsCompressor();
       c.threshold.value = -6; c.knee.value = 0; c.ratio.value = 20; c.attack.value = 0.003; c.release.value = 0.15;
@@ -591,7 +575,6 @@ killall audioserver</pre>
       recChunksL.push(cv(l)); recChunksR.push(cv(r));
     }
 
-    // Perekam di audio thread (AudioWorklet) supaya tidak ada sampel yang hilang kalau UI sibuk
     const REC_WORKLET = `class RecProc extends AudioWorkletProcessor {
       constructor() {
         super(); this.n = 0; this.l = new Float32Array(4096); this.r = new Float32Array(4096);
@@ -735,7 +718,7 @@ killall audioserver</pre>
       st.innerText = info + ' • ✅ Tersimpan ' + ext.toUpperCase() + ' (' + (blob.size / 1048576).toFixed(1) + ' MB)';
     }
 
-    // ===== AUTO-TUNE (AudioWorklet: deteksi pitch YIN + pitch shifter, snap ke scale) =====
+    // ===== AUTO-TUNE =====
     let tuneNode = null, tuneCore = null, isTuneActive = false;
     const TP = { key: 0, mode: 'chromatic', amount: 1, speed: 0.2 };
     const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -822,7 +805,6 @@ killall audioserver</pre>
     }
     registerProcessor('tune-proc', TuneProc);`;
 
-    // Muat worklet: coba data: URL dulu (jalan di file://), lalu blob:
     async function addWorklet(ctx, code) {
       const urls = ['data:text/javascript;charset=utf-8,' + encodeURIComponent(code), URL.createObjectURL(new Blob([code], { type: 'application/javascript' }))];
       let last;
@@ -842,7 +824,6 @@ killall audioserver</pre>
         } catch (err) { node = null; }
       }
       if (!node) {
-        // Cadangan: jalan di main thread (ScriptProcessor) kalau AudioWorklet gagal dimuat
         core = new (new Function(TUNE_CORE + '; return TuneCore;')())(ctx.sampleRate, showTune);
         node = ctx.createScriptProcessor(2048, 1, 1);
         node.onaudioprocess = e => core.run(e.inputBuffer.getChannelData(0), e.outputBuffer.getChannelData(0));
@@ -1142,15 +1123,10 @@ killall audioserver</pre>
     }
 
     function switchTab(tabId) {
-      ['mixer', 'dsp', 'root'].forEach(t => {
+      ['mixer', 'dsp'].forEach(t => {
         document.getElementById(`view-${t}`).classList.toggle('hidden', t !== tabId);
         document.getElementById(`tab-${t}`).classList.toggle('active', t === tabId);
       });
-    }
-
-    function copyCode() {
-      navigator.clipboard.writeText("su\nmount -o remount,rw /system\nkillall audioserver");
-      alert("Root script copied!");
     }
   </script>
 </body>
