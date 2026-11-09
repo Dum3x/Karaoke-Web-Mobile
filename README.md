@@ -1073,7 +1073,7 @@
       pauseOffset = offset;
       fileSourceNode.start(0, offset);
       isPlaying = true;
-      document.getElementById('btn-play-pause').innerText = '⏸️ Pause';
+      document.getElementById('btn-play-pause').innerText = 'Pause';
       document.getElementById('btn-play-pause').className = 'btn btn-green';
     }
 
@@ -1084,7 +1084,7 @@
         pauseOffset = audioCtx.currentTime - startTime;
         if (fileSourceNode) { try { fileSourceNode.stop(); } catch(e){} }
         isPlaying = false;
-        btn.innerText = '▶️ Play';
+        btn.innerText = 'Play';
         btn.className = 'btn btn-cyan';
       } else {
         playAudioAtOffset(pauseOffset);
