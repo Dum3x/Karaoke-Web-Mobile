@@ -337,7 +337,7 @@
 
         <div class="slider-group">
           <div class="slider-info"><span>Vocal Reverb Room Size</span><span id="val-reverb">30%</span></div>
-          <input type="range" min="0" max="0.8" step="0.05" value="0.3" oninput="setReverb(this.value)">
+          <input type="range" min="0" max="1.0" step="0.05" value="0.3" oninput="setReverb(this.value)">
         </div>
 
         <div style="background:#0a0d14; padding:8px; border-radius:6px; border:1px solid #1a2234;" class="slider-group">
@@ -367,9 +367,9 @@
         <div class="slider-group">
           <div class="slider-info">
             <span style="font-weight: 700; color: var(--accent-green);">Noise Gate</span>
-            <span id="val-gate-knob" style="font-weight: 700; color: var(--accent-green);">3.0</span>
+            <span id="val-gate-knob" style="font-weight: 700; color: var(--accent-green);">0.0</span>
           </div>
-          <input type="range" min="0" max="10" step="0.5" value="3" oninput="setGateKnob(this.value)">
+          <input type="range" min="0" max="10" step="0.5" value="0" oninput="setGateKnob(this.value)">
         </div>
       </div>
 
@@ -396,8 +396,8 @@
           <input type="range" min="0" max="100" step="5" value="100" oninput="setTuneAmount(this.value)">
         </div>
         <div class="slider-group">
-          <div class="slider-info"><span>Retune Speed (0 = efek robot T-Pain)</span><span id="val-tune-speed">20%</span></div>
-          <input type="range" min="0" max="100" step="5" value="20" oninput="setTuneSpeed(this.value)">
+          <div class="slider-info"><span>Retune Speed (0 = efek robot T-Pain)</span><span id="val-tune-speed">00%</span></div>
+          <input type="range" min="0" max="100" step="5" value="00" oninput="setTuneSpeed(this.value)">
         </div>
         <div style="font-size:9px; color:var(--text-muted);">Pakai headset. Auto-Tune menambah delay ±20–40 ms.</div>
       </div>
