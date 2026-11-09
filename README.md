@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Karaoke Web - free</title>
   <style>
     :root {
@@ -111,6 +111,44 @@
     #yt-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #000; border-radius: 6px; overflow: hidden; }
     #yt-wrap iframe, #yt-wrap #yt-player { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .sel { flex: 1; background: #0a0d14; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 11px; font-weight: 700; }
+
+    /* ===== RESPONSIVE: otomatis pas di HP, tablet, dan PC ===== */
+    html { -webkit-text-size-adjust: 100%; }
+    header { padding-top: calc(10px + env(safe-area-inset-top, 0px)); padding-left: calc(14px + env(safe-area-inset-left, 0px)); padding-right: calc(14px + env(safe-area-inset-right, 0px)); }
+    main { padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+    #view-mixer, #view-dsp { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    #view-mixer.hidden, #view-dsp.hidden { display: none !important; }
+    #view-mixer > *, #view-dsp > * { margin-top: 0 !important; }
+    .card { min-width: 0; }
+    .btn, .route-btn, .tab-btn { min-height: 38px; }
+    input[type=range]::-webkit-slider-thumb { width: 22px; height: 22px; }
+    input[type=range] { height: 8px; }
+    .lyrics-current { font-size: clamp(14px, 4.2vw, 20px); }
+
+    /* Tablet: container lebih lebar, kartu DSP jadi 2 kolom */
+    @media (min-width: 700px) {
+      body { font-size: 13px; }
+      .app-container { max-width: 980px; }
+      main { padding: 16px; gap: 16px; }
+      canvas { height: 120px; }
+      #view-dsp { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: max-content 1fr; gap: 12px; align-items: start; }
+      #view-dsp.hidden { display: none !important; }
+      #view-dsp > .card:first-child { grid-row: span 2; }
+    }
+
+    /* PC: Live Mixer dan Vocal Effect tampil berdampingan, tab disembunyikan */
+    @media (min-width: 1100px) {
+      body { font-size: 14px; }
+      .app-container { max-width: 1400px; }
+      .tab-bar { display: none; }
+      main { flex-direction: row; align-items: flex-start; gap: 20px; padding: 20px; }
+      #view-mixer, #view-dsp.hidden, #view-mixer.hidden { display: flex !important; }
+      #view-mixer { flex: 1.5 1 0; }
+      #view-dsp, #view-dsp.hidden { flex: 1 1 0; display: flex !important; flex-direction: column; grid-template-columns: none; grid-template-rows: none; }
+      #view-dsp > .card:first-child { grid-row: auto; }
+      canvas { height: 150px; }
+      .lyrics-box { min-height: 110px; }
+    }
   </style>
 </head>
 <body>
@@ -1214,6 +1252,7 @@
 
       function draw() {
         if (!isRunning) return;
+        if (canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight) { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; }
         const bufferLength = masterAnalyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
         masterAnalyser.getByteFrequencyData(dataArray);
