@@ -287,7 +287,7 @@
           <span>Record harus aktif recordnya Busnya</span>
           <span id="rec-status" style="color: var(--text-muted);">● Idle 0:00</span>
         </div>
-        <button id="btn-rec" class="btn btn-danger" onclick="toggleRecord()">⏺ Mulai Rekam</button>
+        <button id="btn-rec" class="btn btn-danger" onclick="toggleRecord()">Start Record</button>
         <div id="rec-result" class="hidden" style="flex-direction:column; gap:8px;">
           <audio id="rec-player" controls style="width:100%;"></audio>
           <div id="rec-info" style="font-size:10px; color:var(--text-muted);"></div>
@@ -391,7 +391,7 @@
           <input type="range" min="0" max="100" step="5" value="100" oninput="setTuneAmount(this.value)">
         </div>
         <div class="slider-group">
-          <div class="slider-info"><span>Retune Speed (0 = efek robot T-Pain)</span><span id="val-tune-speed">00%</span></div>
+          <div class="slider-info"><span>Retune Speed</span><span id="val-tune-speed">00%</span></div>
           <input type="range" min="0" max="100" step="5" value="00" oninput="setTuneSpeed(this.value)">
         </div>
         <div style="font-size:9px; color:var(--text-muted);">Pakai headset. Auto-Tune menambah delay ±20–40 ms.</div>
@@ -719,7 +719,7 @@
       const node = recNode, sink = recSink; recNode = null;
       clearInterval(recTimer); recTimer = null;
       try { limB.disconnect(node); } catch (e) {}
-      document.getElementById('btn-rec').innerText = '⏺ Mulai Rekam';
+      document.getElementById('btn-rec').innerText = 'Start Record';
       document.getElementById('rec-status').style.color = 'var(--text-muted)';
       document.getElementById('rec-status').innerText = '● Idle';
       const finish = () => {
