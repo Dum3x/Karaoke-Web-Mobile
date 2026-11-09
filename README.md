@@ -236,11 +236,6 @@
             <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(1.0)">+1s ></button>
           </div>
 
-          <div style="display: flex; gap: 4px;">
-            <button class="btn" style="flex:1;" onclick="playSampleSynth('synth')">🎮 Synth</button>
-            <button class="btn" style="flex:1;" onclick="playSampleSynth('bass')">🎸 Bass Tone</button>
-          </div>
-
           <div class="slider-group">
             <div class="slider-info"><span>Gain Fader</span><span id="val-gain-ch2">100%</span></div>
             <input type="range" min="0" max="2" step="0.05" value="1" oninput="setGain(1, this.value)">
@@ -408,10 +403,12 @@
   <script>
     let audioCtx = null;
     let isRunning = false;
-    let isDspActive = true;
+    let isDspActive = false;
     let rafId = null, seekDragging = false, delayWet = null, reverbWet = null;
     const S = { gain: [1, 1], master: [1, 1], eq: { low: 0, mid: 0, high: 0 }, delay: 0, reverb: 0.3, thresh: -24, ratio: 4 };
-    let isCompActive = true;
+    let isCompActive = false;
+    // Samakan switch dengan state (semua mati saat awal; browser kadang memulihkan centang lama)
+    ["toggle-dsp", "toggle-comp", "toggle-tune"].forEach(id => { const el = document.getElementById(id); if (el) el.checked = false; });
 
     let micStream = null;
     let micSourceNode = null;
@@ -1155,21 +1152,6 @@
     function adjustSync(sec) {
       lyricOffset += sec;
       document.getElementById('sync-offset-label').innerText = `Offset: ${lyricOffset > 0 ? '+' : ''}${lyricOffset.toFixed(1)}s`;
-    }
-
-    function playSampleSynth(type) {
-      if (!isRunning) initAudioEngine();
-      const now = audioCtx.currentTime;
-      const bass = type === 'bass';
-      const dur = bass ? 0.8 : 0.3;
-      const osc = audioCtx.createOscillator();
-      const env = audioCtx.createGain();
-      osc.type = bass ? 'sine' : 'sawtooth';
-      osc.frequency.setValueAtTime(bass ? 55 : 440, now);
-      env.gain.setValueAtTime(0.5, now);
-      env.gain.exponentialRampToValueAtTime(0.01, now + dur);
-      osc.connect(env); env.connect(chGains[1]);
-      osc.start(now); osc.stop(now + dur + 0.1);
     }
 
     function updateLyricsAndProgress() {
