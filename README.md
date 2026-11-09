@@ -310,7 +310,7 @@
         <div class="toggle-container">
           <span style="font-weight: 700; color: var(--accent-cyan);">Effect Vocal<span style="font-weight:400; color:var(--text-muted); font-size:10px;"> (Low EQ,Mid EQ,High EQ, Delay, Reverb)</span></span>
           <label class="switch">
-            <input type="checkbox" id="toggle-dsp" checked onchange="toggleDSPChain()">
+            <input type="checkbox" id="toggle-dsp" onchange="toggleDSPChain()">
             <span class="slider"></span>
           </label>
         </div>
@@ -344,7 +344,7 @@
           <div class="toggle-container" style="background:transparent; padding:0; border:none; margin-bottom:6px;">
             <span style="font-weight: 700; color: var(--accent-cyan);">Compressor Vocal</span>
             <label class="switch">
-              <input type="checkbox" id="toggle-comp" checked onchange="toggleCompressor()">
+              <input type="checkbox" id="toggle-comp" onchange="toggleCompressor()">
               <span class="slider"></span>
             </label>
           </div>
