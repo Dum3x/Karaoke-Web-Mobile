@@ -231,7 +231,7 @@
           <div class="lyrics-controls">
             <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(-1.0)">< -1s</button>
             <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(-0.5)">◀ -0.5s</button>
-            <span id="sync-offset-label" style="font-size:9px; color:var(--accent-orange); font-weight:700;">Offset: 0s</span>
+            <span id="sync-offset-label" style="font-size:9px; color:var(--accent-white); font-weight:700;">Offset: 0s</span>
             <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(0.5)">+0.5s ▶</button>
             <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(1.0)">+1s ></button>
           </div>
@@ -255,7 +255,7 @@
 
       <!-- YOUTUBE INSTRUMENTAL -->
       <div class="card" style="margin-top: 10px;">
-        <div class="card-title"><span>▶️ YouTube Instrumental</span><span id="yt-status" style="color: var(--text-muted);">–</span></div>
+        <div class="card-title"><span>YouTube Instrumental</span><span id="yt-status" style="color: var(--text-muted);">–</span></div>
         <div style="display:flex; gap:6px;">
           <input id="yt-url" type="text" placeholder="Tempel link YouTube di sini..." style="flex:1; min-width:0; background:#0a0d14; color:var(--text-main); border:1px solid var(--border-color); border-radius:6px; padding:8px; font-size:12px; -webkit-user-select:text; user-select:text;">
           <button class="btn btn-cyan" onclick="loadYouTube()">Muat</button>
@@ -1197,7 +1197,7 @@
         for (let i = 0; i < currentLyrics.length; i++) {
           if (elapsed >= currentLyrics[i].time) activeIndex = i;
         }
-        document.getElementById('lyric-current').innerText = currentLyrics[activeIndex] ? currentLyrics[activeIndex].text : "🎵 Musik Berjalan...";
+        document.getElementById('lyric-current').innerText = currentLyrics[activeIndex] ? currentLyrics[activeIndex].text : "Musik Berjalan...";
         document.getElementById('lyric-next').innerText = `Berikutnya: ${currentLyrics[activeIndex + 1] ? currentLyrics[activeIndex + 1].text : "(Akhir Lirik)"}`;
       }
     }
