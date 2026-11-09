@@ -237,7 +237,7 @@
           </div>
 
           <div class="slider-group">
-            <div class="slider-info"><span>Gain Fader</span><span id="val-gain-ch2">100%</span></div>
+            <div class="slider-info"><span>Volume Music</span><span id="val-gain-ch2">100%</span></div>
             <input type="range" min="0" max="2" step="0.05" value="1" oninput="setGain(1, this.value)">
           </div>
 
