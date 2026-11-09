@@ -211,8 +211,8 @@
           </div>
 
           <div class="player-controls">
-            <button id="btn-restart" class="btn" onclick="restartAudio()" style="background:#0a0d14; border-color:#1a2234;">⏮️ Restart</button>
-            <button id="btn-play-pause" class="btn btn-green" onclick="togglePlayPause()" style="flex:1;">⏸️ Pause</button>
+            <button id="btn-restart" class="btn" onclick="restartAudio()" style="background:#0a0d14; border-color:#1a2234;">Restart</button>
+            <button id="btn-play-pause" class="btn btn-green" onclick="togglePlayPause()" style="flex:1;">Pause</button>
           </div>
 
           <div class="slider-group">
@@ -229,11 +229,11 @@
           </div>
 
           <div class="lyrics-controls">
-            <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(-1.0)">⏪ -1s</button>
+            <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(-1.0)">< -1s</button>
             <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(-0.5)">◀ -0.5s</button>
             <span id="sync-offset-label" style="font-size:9px; color:var(--accent-orange); font-weight:700;">Offset: 0s</span>
             <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(0.5)">+0.5s ▶</button>
-            <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(1.0)">+1s ⏩</button>
+            <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(1.0)">+1s ></button>
           </div>
 
           <div style="display: flex; gap: 4px;">
@@ -266,8 +266,8 @@
           <input id="yt-vol" type="range" min="0" max="100" step="5" value="100" oninput="setYtVolume(this.value)">
         </div>
         <div style="display:flex; gap:6px;">
-          <button class="btn" style="flex:1;" onclick="openYouTube()">↗ Buka di YouTube</button>
-          <button class="btn" style="flex:1;" onclick="stopYouTube()">⏹ Tutup Player</button>
+          <button class="btn" style="flex:1;" onclick="openYouTube()">Buka di YouTube</button>
+          <button class="btn" style="flex:1;" onclick="stopYouTube()">Tutup Player</button>
         </div>
         <div id="yt-help" style="font-size:10px; color:var(--accent-orange);"></div>
         <div style="font-size:9px; color:var(--text-muted);">Musik YouTube diputar oleh player-nya sendiri gak bisa di record.</div>
@@ -296,7 +296,7 @@
         <div id="rec-result" class="hidden" style="flex-direction:column; gap:8px;">
           <audio id="rec-player" controls style="width:100%;"></audio>
           <div id="rec-info" style="font-size:10px; color:var(--text-muted);"></div>
-          <button class="btn btn-green" onclick="saveRecording()">💾 Simpan MP3 (128 kbps)</button>
+          <button class="btn btn-green" onclick="saveRecording()">Simpan MP3 (128 kbps)</button>
         </div>
         <div style="font-size:9px; color:var(--text-muted);">Yang direkam semua channel recordnya harus aktif ya (mic + lagu), sesuai fader dan slider B1. Disimpan sebagai MP3 128 kbps.</div>
       </div>
@@ -786,7 +786,7 @@
     async function saveRecording() {
       if (!recPCM) return;
       const st = document.getElementById('rec-info'), info = st.innerText;
-      st.innerText = '⏳ Memproses MP3...';
+      st.innerText = 'Memproses MP3...';
       await new Promise(r => setTimeout(r, 50));
       const { L, R, rate } = recPCM;
       let blob, ext = 'mp3';
@@ -800,7 +800,7 @@
       a.href = url; a.download = `rekaman-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}.${ext}`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60000);
-      st.innerText = info + ' • ✅ Tersimpan ' + ext.toUpperCase() + ' (' + (blob.size / 1048576).toFixed(1) + ' MB)';
+      st.innerText = info + ' • Tersimpan ' + ext.toUpperCase() + ' (' + (blob.size / 1048576).toFixed(1) + ' MB)';
     }
 
     // ===== AUTO-TUNE =====
