@@ -230,9 +230,9 @@
 
           <div class="lyrics-controls">
             <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(-1.0)">< -1s</button>
-            <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(-0.5)">◀ -0.5s</button>
+            <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(-0.5)"><< -0.5s</button>
             <span id="sync-offset-label" style="font-size:9px; color:var(--accent-white); font-weight:700;">Offset: 0s</span>
-            <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(0.5)">+0.5s ▶</button>
+            <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(0.5)">+0.5s >></button>
             <button class="btn" style="flex:1; padding:4px; font-size:10px; background:#1a2234;" onclick="adjustSync(1.0)">+1s ></button>
           </div>
 
@@ -362,7 +362,7 @@
         <div class="slider-group">
           <div class="slider-info">
             <span style="font-weight: 700; color: var(--accent-white);">Noise Gate</span>
-            <span id="val-gate-knob" style="font-weight: 700; color: var(--accent-white);">0.0</span>
+            <span id="val-gate-knob" style="font-weight: 700; color: var(--accent-cyan);">0.0</span>
           </div>
           <input type="range" min="0" max="10" step="0.5" value="0" oninput="setGateKnob(this.value)">
         </div>
