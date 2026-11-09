@@ -184,12 +184,12 @@
           <div class="meter-container"><div id="meter-ch1" class="meter-bar"></div></div>
           <button id="btn-mic-toggle" class="btn btn-green" onclick="toggleMic()">Activate Microphone</button>
           <div class="slider-group">
-            <div class="slider-info"><span>Gain Fader</span><span id="val-gain-ch1">100%</span></div>
+            <div class="slider-info"><span>Volume Microphone</span><span id="val-gain-ch1">100%</span></div>
             <input type="range" min="0" max="2" step="0.05" value="1" oninput="setGain(0, this.value)">
           </div>
 
           <div class="route-matrix">
-            <button id="r-0-0" class="route-btn" onclick="toggleRoute(0, 0)">A1 (Out)</button>
+            <button id="r-0-0" class="route-btn" onclick="toggleRoute(0, 0)">Monitor (Out)</button>
             <button id="r-0-1" class="route-btn active-b" onclick="toggleRoute(0, 1)">Record (Bus)</button>
           </div>
         </div>
@@ -224,8 +224,8 @@
           </div>
 
           <div class="lyrics-box">
-            <div id="lyric-current" class="lyrics-current">🎵 Isolated Gate Ready!</div>
-            <div id="lyric-next" class="lyrics-next">Atur Kenop Audibility di tab DSP</div>
+            <div id="lyric-current" class="lyrics-current">Get Ready To Take Vocal</div>
+            <div id="lyric-next" class="lyrics-next">Have a nice day</div>
           </div>
 
           <div class="lyrics-controls">
@@ -247,8 +247,8 @@
           </div>
 
           <div class="route-matrix">
-            <button id="r-1-0" class="route-btn active-a" onclick="toggleRoute(1, 0)">A1 (Out)</button>
-            <button id="r-1-1" class="route-btn active-b" onclick="toggleRoute(1, 1)">B1 (Bus)</button>
+            <button id="r-1-0" class="route-btn active-a" onclick="toggleRoute(1, 0)">Monitor (Out)</button>
+            <button id="r-1-1" class="route-btn active-b" onclick="toggleRoute(1, 1)">Record (Bus)</button>
           </div>
         </div>
       </div>
@@ -270,18 +270,18 @@
           <button class="btn" style="flex:1;" onclick="stopYouTube()">⏹ Tutup Player</button>
         </div>
         <div id="yt-help" style="font-size:10px; color:var(--accent-orange);"></div>
-        <div style="font-size:9px; color:var(--text-muted);">Musik YouTube diputar oleh player-nya sendiri, bukan lewat mixer: nggak kena fader CH2/A1/B1 dan nggak ikut direkam. Pakai headset supaya mic nggak menangkap suara speaker. Lirik .lrc yang sudah di-upload ikut sinkron.</div>
+        <div style="font-size:9px; color:var(--text-muted);">Musik YouTube diputar oleh player-nya sendiri gak bisa di record.</div>
       </div>
 
       <div class="card" style="margin-top: 10px;">
-        <div class="card-title">Master Output Buses</div>
+        <div class="card-title">Master Output Bus</div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
           <div class="slider-group">
-            <div class="slider-info"><span>A1: Speaker/Headset Out</span><span id="val-master-a">100%</span></div>
+            <div class="slider-info"><span>Monitor Speaker/Headset</span><span id="val-master-a">100%</span></div>
             <input type="range" min="0" max="1.5" step="0.05" value="1" oninput="setMasterGain(0, this.value)">
           </div>
           <div class="slider-group">
-            <div class="slider-info"><span>B1: Bus Rekam (masuk ke file)</span><span id="val-master-b">100%</span></div>
+            <div class="slider-info"><span>Bus Rekam</span><span id="val-master-b">100%</span></div>
             <input type="range" min="0" max="1.5" step="0.05" value="1" oninput="setMasterGain(1, this.value)">
           </div>
         </div>
@@ -289,7 +289,7 @@
 
       <div class="card" style="margin-top: 10px;">
         <div class="card-title">
-          <span>⏺ Record B1 (Lagu + Suara)</span>
+          <span>⏺ Record harus aktif recordnya Busnya</span>
           <span id="rec-status" style="color: var(--text-muted);">● Idle 0:00</span>
         </div>
         <button id="btn-rec" class="btn btn-danger" onclick="toggleRecord()">⏺ Mulai Rekam</button>
@@ -298,7 +298,7 @@
           <div id="rec-info" style="font-size:10px; color:var(--text-muted);"></div>
           <button class="btn btn-green" onclick="saveRecording()">💾 Simpan MP3 (128 kbps)</button>
         </div>
-        <div style="font-size:9px; color:var(--text-muted);">Yang direkam = semua channel yang rute B1-nya aktif (mic + lagu), sesuai fader dan slider B1. Disimpan sebagai MP3 128 kbps.</div>
+        <div style="font-size:9px; color:var(--text-muted);">Yang direkam semua channel recordnya harus aktif ya (mic + lagu), sesuai fader dan slider B1. Disimpan sebagai MP3 128 kbps.</div>
       </div>
     </div>
 
@@ -308,7 +308,7 @@
       <div class="card">
         <div class="card-title">DSP Master Switch &amp; Vocal Shaping</div>
         <div class="toggle-container">
-          <span style="font-weight: 700; color: var(--accent-cyan);">🎛️ EFEK VOCAL / DSP MASTER SWITCH <span style="font-weight:400; color:var(--text-muted); font-size:10px;">(Comp, EQ, Echo, Reverb)</span></span>
+          <span style="font-weight: 700; color: var(--accent-cyan);">Effect Vocal<span style="font-weight:400; color:var(--text-muted); font-size:10px;"> (Low EQ,Mid EQ,High EQ, Delay, Reverb)</span></span>
           <label class="switch">
             <input type="checkbox" id="toggle-dsp" checked onchange="toggleDSPChain()">
             <span class="slider"></span>
@@ -342,7 +342,7 @@
 
         <div style="background:#0a0d14; padding:8px; border-radius:6px; border:1px solid #1a2234;" class="slider-group">
           <div class="toggle-container" style="background:transparent; padding:0; border:none; margin-bottom:6px;">
-            <span style="font-weight: 700; color: var(--accent-orange);">🎙️ VOCAL DYNAMICS COMPRESSOR</span>
+            <span style="font-weight: 700; color: var(--accent-cyan);">Compressor Vocal</span>
             <label class="switch">
               <input type="checkbox" id="toggle-comp" checked onchange="toggleCompressor()">
               <span class="slider"></span>
@@ -350,12 +350,12 @@
           </div>
           
           <div class="slider-group">
-            <div class="slider-info"><span>Comp Threshold</span><span id="val-comp-thresh">-24 dB</span></div>
+            <div class="slider-info"><span>Comp Threshold</span><span id="val-comp-thresh">-30 dB</span></div>
             <input type="range" min="-60" max="0" step="1" value="-24" oninput="setCompressorThreshold(this.value)">
           </div>
           
           <div class="slider-group">
-            <div class="slider-info"><span>Comp Ratio</span><span id="val-comp-ratio">4:1</span></div>
+            <div class="slider-info"><span>Comp Ratio</span><span id="val-comp-ratio">10:1</span></div>
             <input type="range" min="1" max="20" step="1" value="4" oninput="setCompressorRatio(this.value)">
           </div>
         </div>
@@ -363,10 +363,10 @@
 
       <!-- AUDIBILITY KNOB (ISOLATED GATE) -->
       <div class="card">
-        <div class="card-title">Audibility Gate Control (mandiri, tidak ikut Master Switch)</div>
+        <div class="card-title">Noise Gate</div>
         <div class="slider-group">
           <div class="slider-info">
-            <span style="font-weight: 700; color: var(--accent-green);">🚪 AUDIBILITY KENOP (0 - 10)</span>
+            <span style="font-weight: 700; color: var(--accent-green);">Noise Gate</span>
             <span id="val-gate-knob" style="font-weight: 700; color: var(--accent-green);">3.0</span>
           </div>
           <input type="range" min="0" max="10" step="0.5" value="3" oninput="setGateKnob(this.value)">
@@ -375,9 +375,9 @@
 
       <!-- AUTO-TUNE -->
       <div class="card">
-        <div class="card-title"><span>Auto-Tune Vokal</span><span id="tune-note" style="color: var(--accent-cyan);">–</span></div>
+        <div class="card-title"><span>Auto Tune Vocal</span><span id="tune-note" style="color: var(--accent-cyan);">–</span></div>
         <div class="toggle-container">
-          <span style="font-weight: 700; color: var(--accent-magenta);">🎶 AUTO-TUNE (mandiri, tidak ikut Master Switch)</span>
+          <span style="font-weight: 700; color: var(--accent-cyan);">Auto Tune</span>
           <label class="switch">
             <input type="checkbox" id="toggle-tune" onchange="toggleAutotune()">
             <span class="slider"></span>
@@ -438,8 +438,8 @@
     let reverbNode = null, reverbGain = null, reverbFilter = null;
 
     let currentLyrics = [
-      { time: 0.0, text: "🎵 Isolated Audibility Engine Siap!" },
-      { time: 3.0, text: "Gate berdiri di depan, murni menyaring noise sebelum efek lain!" }
+      { time: 0.0, text: "Ready to take your vocal" },
+      { time: 3.0, text: "Keren" }
     ];
 
     let routing = [[0, 1], [1, 1]];
@@ -578,7 +578,6 @@
         }
       }
     }
-
     function stopMic() {
       if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
       if (micSourceNode) { try { micSourceNode.disconnect(); } catch(e){} micSourceNode = null; }
