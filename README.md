@@ -702,7 +702,7 @@
       limB.connect(node); node.connect(sink); recNode = node;
       recStart = Date.now();
       document.getElementById('rec-result').classList.add('hidden');
-      document.getElementById('btn-rec').innerText = '⏹ Stop Rekam';
+      document.getElementById('btn-rec').innerText = 'Stop Record';
       document.getElementById('rec-status').style.color = 'var(--accent-magenta)';
       recTimer = setInterval(() => { document.getElementById('rec-status').innerText = '● REC ' + formatTime((Date.now() - recStart) / 1000); }, 250);
     }
