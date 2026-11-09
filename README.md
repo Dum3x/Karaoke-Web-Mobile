@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Karaoke Web - free</title>
+  <title>Karaoke Web</title>
   <style>
     :root {
       --bg-main: #0a0d14;
@@ -108,12 +107,6 @@
     .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
     .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
     .hidden { display: none !important; }
-    #yt-results { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
-    .yt-item { display: flex; gap: 8px; align-items: center; text-align: left; width: 100%; background: #0a0d14; border: 1px solid #1a2234; border-radius: 6px; padding: 6px; color: var(--text-main); cursor: pointer; font-family: inherit; }
-    .yt-item img { width: 96px; height: 54px; object-fit: cover; border-radius: 4px; flex: none; background: #000; }
-    .yt-item.active { border-color: var(--accent-cyan); }
-    .yt-t { font-size: 12px; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .yt-c { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
     #yt-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #000; border-radius: 6px; overflow: hidden; }
     #yt-wrap iframe, #yt-wrap #yt-player { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .sel { flex: 1; background: #0a0d14; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 11px; font-weight: 700; }
@@ -131,7 +124,7 @@
     input[type=range] { height: 8px; }
     .lyrics-current { font-size: clamp(14px, 4.2vw, 20px); }
 
-    /* Tablet: container lebih lebar, kartu DSP jadi 2 kolom */
+    /* Tablet: container lebih lebar, kartu vocal effect jadi 2 kolom */
     @media (min-width: 700px) {
       body { font-size: 13px; }
       .app-container { max-width: 980px; }
@@ -163,7 +156,7 @@
   <header>
     <div class="brand">
       <span>Karaoke Web</span>
-      <span class="badge">Free</span>
+      <span class="badge">V0.5</span>
     </div>
     <button id="btn-power" onclick="toggleEngine()" class="btn btn-cyan">START</button>
   </header>
@@ -174,7 +167,7 @@
   </div>
 
   <main>
-    <!-- VIEW 1: LIVE MIXER -->
+    <!-- LIVE MIXER -->
     <div id="view-mixer">
       <div class="card">
         <div class="card-title">
@@ -211,7 +204,7 @@
             </div>
 
             <div class="file-input-wrapper">
-              <button class="btn" style="width: 100%; background:#0e2a38; border-color:var(--accent-cyan);">Upload Lirik File (.lrc)</button>
+              <button class="btn" style="width: 100%; background:#0e2a38; border-color:var(--accent-cyan);">Upload Lirik File (.LRC)</button>
               <input type="file" accept=".lrc,.txt" onchange="handleLrcUpload(event)">
             </div>
           </div>
@@ -254,16 +247,14 @@
         </div>
       </div>
 
-      <!-- YOUTUBE INSTRUMENTAL (cari + putar) -->
+      <!-- YOUTUBE INSTRUMENTAL -->
       <div class="card" style="margin-top: 10px;">
         <div class="card-title"><span>YouTube Instrumental</span><span id="yt-status" style="color: var(--text-muted);">–</span></div>
         <div style="display:flex; gap:6px;">
-          <input id="yt-url" type="text" enterkeyhint="search" placeholder="Cari lagu / instrumental (atau tempel link YouTube)..." onkeydown="if(event.key==='Enter')searchYouTube()" style="flex:1; min-width:0; background:#0a0d14; color:var(--text-main); border:1px solid var(--border-color); border-radius:6px; padding:8px; font-size:12px; -webkit-user-select:text; user-select:text;">
-          <button class="btn btn-cyan" onclick="searchYouTube()">Cari</button>
+          <input id="yt-url" type="text" placeholder="Tempel link YouTube di sini..." style="flex:1; min-width:0; background:#0a0d14; color:var(--text-main); border:1px solid var(--border-color); border-radius:6px; padding:8px; font-size:12px; -webkit-user-select:text; user-select:text;">
+          <button class="btn btn-cyan" onclick="loadYouTube()">Muat</button>
         </div>
-        <label style="font-size:10px; color:var(--text-muted); display:flex; align-items:center; gap:6px;"><input type="checkbox" id="yt-instr" checked> tambahkan kata "instrumental" ke pencarian</label>
         <div id="yt-wrap" class="hidden"><div id="yt-player"></div></div>
-        <div id="yt-results" class="hidden"></div>
         <div class="slider-group">
           <div class="slider-info"><span>Volume YouTube</span><span id="val-yt-vol">100%</span></div>
           <input id="yt-vol" type="range" min="0" max="100" step="5" value="100" oninput="setYtVolume(this.value)">
@@ -274,14 +265,6 @@
         </div>
         <div id="yt-help" style="font-size:10px; color:var(--accent-orange);"></div>
         <div style="font-size:9px; color:var(--text-muted);">Musik YouTube diputar oleh player-nya sendiri gak bisa di record.</div>
-        <details id="yt-key-box" style="font-size:10px; color:var(--text-muted);">
-          <summary style="cursor:pointer;">API Key YouTube (untuk pencarian)</summary>
-          <div style="display:flex; gap:6px; margin-top:6px;">
-            <input id="yt-key" type="password" placeholder="Tempel API key..." style="flex:1; min-width:0; background:#0a0d14; color:var(--text-main); border:1px solid var(--border-color); border-radius:6px; padding:8px; font-size:12px; -webkit-user-select:text; user-select:text;">
-            <button class="btn" onclick="saveYtKey()">Simpan</button>
-          </div>
-          <div style="margin-top:6px;">Gratis dari Google Cloud Console: buat project, aktifkan "YouTube Data API v3", lalu Credentials, Create API key. Kuota standar sekitar 100 pencarian per hari. Key disimpan hanya di browser ini. Tempel link YouTube langsung tidak butuh key.</div>
-        </details>
       </div>
 
       <div class="card" style="margin-top: 10px;">
@@ -313,9 +296,9 @@
       </div>
     </div>
 
-    <!-- VIEW 2: DSP EFFECTS (ISOLATED FIRST-LINE GATE) -->
+    <!-- VOCALEFFECT -->
     <div id="view-dsp" class="hidden">
-      <!-- DSP MASTER SWITCH + COMPRESSOR + EQUALIZER + ECHO + REVERB (satu kartu) -->
+      <!-- VOCALEFFECT -->
       <div class="card">
         <div class="card-title">Vocal Effect &amp; Vocal Shaping</div>
         <div class="toggle-container">
@@ -372,7 +355,7 @@
         </div>
       </div>
 
-      <!-- AUDIBILITY KNOB (ISOLATED GATE) -->
+      <!-- NOISEGATE -->
       <div class="card">
         <div class="card-title">Noise Gate</div>
         <div class="slider-group">
@@ -384,7 +367,7 @@
         </div>
       </div>
 
-      <!-- AUTO-TUNE -->
+      <!-- AUTOTUNE -->
       <div class="card">
         <div class="card-title"><span>Auto Tune Vocal</span><span id="tune-note" style="color: var(--accent-cyan);">–</span></div>
         <div class="toggle-container">
@@ -410,7 +393,7 @@
           <div class="slider-info"><span>Retune Speed</span><span id="val-tune-speed">00%</span></div>
           <input type="range" min="0" max="100" step="5" value="00" oninput="setTuneSpeed(this.value)">
         </div>
-        <div style="font-size:9px; color:var(--text-muted);">Pakai headset. Auto-Tune menambah delay ±20–40 ms.</div>
+        <div style="font-size:9px; color:var(--text-muted);">Pakai headset. Auto Tune menambah delay ±20–40 ms.</div>
       </div>
     </div>
   </main>
@@ -650,7 +633,7 @@
       }
     }
 
-    // ===== REKAM B1 -> MP3 =====
+    // ===== RECORDVOCAL + MUSIC =====
     let limA = null, limB = null;
     let recNode = null, recSink = null, recChunksL = [], recChunksR = [], recRate = 48000;
     let recTimer = null, recStart = 0, recUrl = null, recPCM = null, recFinish = null;
@@ -816,7 +799,7 @@
       st.innerText = info + ' • Tersimpan ' + ext.toUpperCase() + ' (' + (blob.size / 1048576).toFixed(1) + ' MB)';
     }
 
-    // ===== AUTO-TUNE =====
+    // ===== AUTOTUNE =====
     let tuneNode = null, tuneCore = null, isTuneActive = false;
     const TP = { key: 0, mode: 'chromatic', amount: 1, speed: 0.2 };
     const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -963,7 +946,7 @@
       document.getElementById('val-tune-speed').innerText = v == 0 ? 'Instan (robot)' : v + '%';
     }
 
-    // ===== YOUTUBE INSTRUMENTAL (player terpisah, tidak lewat mixer) =====
+    // ===== YOUTUBE INSTRUMENTAL (Player Terpisah, Tidak Lewat Mixer) =====
     let ytPlayer = null, ytReady = false, ytTimer = null, ytApiLoading = null;
 
     function parseYouTubeId(u) {
@@ -987,10 +970,9 @@
       return ytApiLoading;
     }
 
-    let ytCur = '', ytKeyMem = '';
-
-    async function playYouTubeId(id) {
-      ytCur = id;
+    async function loadYouTube() {
+      const id = parseYouTubeId(document.getElementById('yt-url').value);
+      if (!id) { alert('Link YouTube tidak dikenali.'); return; }
       document.getElementById('yt-wrap').classList.remove('hidden');
       ytHelp(''); ytMsg('Memuat...');
       try { await loadYtApi(); } catch (e) { ytMsg('Gagal', 'var(--accent-magenta)'); ytHelp(e.message); return; }
@@ -1019,7 +1001,7 @@
         const elapsed = ytPlayer.getCurrentTime() + lyricOffset;
         let a = -1;
         for (let i = 0; i < currentLyrics.length; i++) if (elapsed >= currentLyrics[i].time) a = i;
-        document.getElementById('lyric-current').innerText = currentLyrics[a] ? currentLyrics[a].text : "🎵 Musik Berjalan...";
+        document.getElementById('lyric-current').innerText = currentLyrics[a] ? currentLyrics[a].text : "Musik Berjalan...";
         document.getElementById('lyric-next').innerText = `Berikutnya: ${currentLyrics[a + 1] ? currentLyrics[a + 1].text : "(Akhir Lirik)"}`;
       }, 200);
     }
@@ -1029,66 +1011,9 @@
       if (ytPlayer && ytReady) ytPlayer.setVolume(+v);
     }
 
-    function getYtKey() { try { return ytKeyMem || localStorage.getItem('yt_api_key') || ''; } catch (e) { return ytKeyMem; } }
-    function saveYtKey() {
-      const v = document.getElementById('yt-key').value.trim();
-      ytKeyMem = v;
-      try { localStorage.setItem('yt_api_key', v); ytHelp(v ? 'API key disimpan di browser ini.' : 'API key dihapus.'); }
-      catch (e) { ytHelp('Browser menolak menyimpan key; berlaku sampai halaman ditutup.'); }
-    }
-    function decodeHtml(t) { const x = document.createElement('textarea'); x.innerHTML = t; return x.value; }
-
-    async function searchYouTube() {
-      const raw = document.getElementById('yt-url').value.trim();
-      if (!raw) return;
-      const direct = parseYouTubeId(raw);
-      if (direct && /youtu/i.test(raw)) { playYouTubeId(direct); return; }
-      const key = getYtKey();
-      if (!key) {
-        document.getElementById('yt-key-box').open = true;
-        ytHelp('Pencarian butuh API key YouTube (gratis). Isi di bagian "API Key YouTube" di bawah, atau tempel link video langsung.');
-        return;
-      }
-      const q = raw + (document.getElementById('yt-instr').checked ? ' instrumental' : '');
-      ytMsg('Mencari...'); ytHelp('');
-      try {
-        const r = await fetch('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=12&videoEmbeddable=true&videoSyndicated=true&q=' + encodeURIComponent(q) + '&key=' + encodeURIComponent(key));
-        const j = await r.json();
-        if (j.error) {
-          const reason = (j.error.errors && j.error.errors[0] && j.error.errors[0].reason) || '';
-          throw new Error(reason === 'quotaExceeded' ? 'Kuota pencarian harian habis. Coba lagi besok, atau tempel link video langsung.'
-            : reason === 'keyInvalid' ? 'API key tidak valid.' : 'Pencarian ditolak: ' + (j.error.message || reason));
-        }
-        renderYtResults(j.items || []);
-      } catch (e) {
-        ytMsg('Gagal', 'var(--accent-magenta)');
-        ytHelp(/Failed to fetch|NetworkError/i.test(e.message) ? 'Gagal terhubung ke YouTube (cek internet).' : e.message);
-      }
-    }
-
-    function renderYtResults(items) {
-      const box = document.getElementById('yt-results'); box.innerHTML = '';
-      const list = items.filter(it => it.id && it.id.videoId);
-      if (!list.length) { box.classList.add('hidden'); ytMsg('0 hasil'); ytHelp('Tidak ada hasil yang bisa diputar. Coba kata kunci lain.'); return; }
-      list.forEach(it => {
-        const row = document.createElement('button'); row.type = 'button'; row.className = 'yt-item';
-        const img = document.createElement('img'); img.alt = ''; img.src = (it.snippet.thumbnails.medium || it.snippet.thumbnails.default).url;
-        const info = document.createElement('div');
-        const t = document.createElement('div'); t.className = 'yt-t'; t.textContent = decodeHtml(it.snippet.title);
-        const c = document.createElement('div'); c.className = 'yt-c'; c.textContent = decodeHtml(it.snippet.channelTitle);
-        info.append(t, c); row.append(img, info);
-        row.onclick = () => {
-          box.querySelectorAll('.yt-item').forEach(x => x.classList.remove('active')); row.classList.add('active');
-          playYouTubeId(it.id.videoId);
-        };
-        box.appendChild(row);
-      });
-      box.classList.remove('hidden'); ytMsg(list.length + ' hasil');
-    }
-
     function openYouTube() {
-      const id = parseYouTubeId(document.getElementById('yt-url').value) || ytCur;
-      if (!id) { alert('Pilih video dulu atau tempel link YouTube.'); return; }
+      const id = parseYouTubeId(document.getElementById('yt-url').value);
+      if (!id) { alert('Tempel link YouTube dulu.'); return; }
       window.open('https://www.youtube.com/watch?v=' + id, '_blank');
     }
 
@@ -1100,7 +1025,6 @@
       ytMsg('–'); ytHelp('');
     }
 
-    document.getElementById('yt-key').value = getYtKey();
     if (location.protocol === 'file:') ytHelp('Halaman ini dibuka dari file lokal: YouTube biasanya menolak embed (error 153). Solusi: buka lewat http://localhost (mis. Termux: python -m http.server 8080) atau hosting https. Atau pakai "Buka di YouTube".');
 
     function toggleDSPChain() { isDspActive = document.getElementById('toggle-dsp').checked; connectMicNode(); }
