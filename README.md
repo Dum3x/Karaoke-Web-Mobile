@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Voicemeeter Mobile - Isolated Audibility Engine</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=no">
+  <title>Karaoke Web - free</title>
   <style>
     :root {
       --bg-main: #0a0d14;
@@ -19,34 +19,68 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-main); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, monospace; min-height: 100vh; display: flex; flex-direction: column; font-size: 12px; }
+    
+    body { 
+      background-color: var(--bg-main); 
+      color: var(--text-main); 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+      font-size: 12px;
+      align-items: center;
+    }
 
-    header { background: var(--bg-card-header); border-bottom: 1px solid var(--border-color); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-    .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: var(--accent-cyan); }
+    /* Fixed Layout Outer Container for PC & Mobile */
+    .app-container {
+      width: 100%;
+      max-width: 850px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #07090e;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    header { 
+      background: var(--bg-card-header); 
+      border-bottom: 1px solid var(--border-color); 
+      padding: 10px 14px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      position: sticky; 
+      top: 0; 
+      z-index: 100; 
+    }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 13px; color: var(--accent-cyan); }
     .badge { background: rgba(0, 255, 102, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
 
     .tab-bar { display: flex; background: #0d121c; border-bottom: 1px solid var(--border-color); padding: 4px; gap: 4px; }
-    .tab-btn { flex: 1; padding: 8px; text-align: center; background: transparent; border: none; color: var(--text-muted); font-weight: 700; font-size: 11px; border-radius: 6px; cursor: pointer; }
+    .tab-btn { flex: 1; padding: 10px; text-align: center; background: transparent; border: none; color: var(--text-muted); font-weight: 700; font-size: 11px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
     .tab-btn.active { background: var(--bg-card); color: var(--accent-cyan); border: 1px solid rgba(0, 240, 255, 0.3); }
 
-    main { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 10px; max-width: 800px; margin: 0 auto; width: 100%; }
+    main { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 12px; width: 100%; }
     .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
     .card-title { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a2336; padding-bottom: 4px; }
 
-    .mixer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
-    .channel-strip { background: #0f1420; border: 1px solid #1a2234; border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    /* Responsive Grid for PC vs Mobile */
+    .mixer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+    .channel-strip { background: #0f1420; border: 1px solid #1a2234; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
     .channel-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--accent-cyan); }
 
     .meter-container { width: 100%; height: 8px; background: #06090e; border-radius: 4px; overflow: hidden; border: 1px solid #1a2234; }
     .meter-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #00ff66 60%, #ff9900 85%, #ff0055 100%); transition: width 0.05s ease; }
 
-    .slider-group { display: flex; flex-direction: column; gap: 3px; }
+    .slider-group { display: flex; flex-direction: column; gap: 4px; }
     .slider-info { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-main); }
     input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; background: #06090e; border-radius: 3px; outline: none; }
-    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-cyan); cursor: pointer; box-shadow: 0 0 8px rgba(0, 240, 255, 0.6); }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent-cyan); cursor: pointer; box-shadow: 0 0 8px rgba(0, 240, 255, 0.6); }
 
     .route-matrix { display: flex; gap: 6px; margin-top: 4px; }
-    .route-btn { flex: 1; padding: 6px; font-size: 10px; font-weight: 800; background: #0a0d14; border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 4px; text-align: center; cursor: pointer; }
+    .route-btn { flex: 1; padding: 8px; font-size: 10px; font-weight: 800; background: #0a0d14; border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 4px; text-align: center; cursor: pointer; }
     .route-btn.active-a { background: rgba(0, 240, 255, 0.2); border-color: var(--accent-cyan); color: var(--accent-cyan); }
     .route-btn.active-b { background: rgba(0, 255, 102, 0.2); border-color: var(--accent-green); color: var(--accent-green); }
 
@@ -63,32 +97,36 @@
     input:checked + .slider { background-color: rgba(0, 255, 102, 0.2); border-color: var(--accent-green); }
     input:checked + .slider:before { transform: translateX(22px); background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
 
-    .lyrics-box { background: #06090e; border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 6px; min-height: 95px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; position: relative; box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05); }
-    .lyrics-current { font-size: 15px; font-weight: 800; color: var(--accent-cyan); text-shadow: 0 0 12px rgba(0, 240, 255, 0.6); margin-bottom: 6px; line-height: 1.3; }
-    .lyrics-next { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+    .lyrics-box { background: #06090e; border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 6px; min-height: 85px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; position: relative; box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05); }
+    .lyrics-current { font-size: 14px; font-weight: 800; color: var(--accent-cyan); text-shadow: 0 0 12px rgba(0, 240, 255, 0.6); margin-bottom: 4px; line-height: 1.3; }
+    .lyrics-next { font-size: 10px; color: var(--text-muted); font-weight: 600; }
+    
     .player-controls { display: flex; gap: 6px; align-items: center; justify-content: center; }
-    .lyrics-controls { display: flex; gap: 4px; align-items: center; justify-content: space-between; }
+    .lyrics-controls { display: flex; gap: 4px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
 
-    canvas { width: 100%; height: 100px; background: #05070a; border-radius: 6px; border: 1px solid var(--border-color); display: block; }
+    canvas { width: 100%; height: 90px; background: #05070a; border-radius: 6px; border: 1px solid var(--border-color); display: block; }
     .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
     .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
     .hidden { display: none !important; }
+    #yt-wrap { position: relative; width: 100%; padding-top: 56.25%; background: #000; border-radius: 6px; overflow: hidden; }
+    #yt-wrap iframe, #yt-wrap #yt-player { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .sel { flex: 1; background: #0a0d14; color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; font-size: 11px; font-weight: 700; }
   </style>
 </head>
 <body>
 
+<div class="app-container">
   <header>
     <div class="brand">
-      <span>🎛 VOICEMEETER MOBILE</span>
-      <span class="badge">ISOLATED GATE ENGINE</span>
+      <span>Karaoke Web</span>
+      <span class="badge">Free</span>
     </div>
-    <button id="btn-power" onclick="toggleEngine()" class="btn btn-cyan">START ENGINE</button>
+    <button id="btn-power" onclick="toggleEngine()" class="btn btn-cyan">START</button>
   </header>
 
   <div class="tab-bar">
     <button class="tab-btn active" onclick="switchTab('mixer')" id="tab-mixer">Live Mixer</button>
-    <button class="tab-btn" onclick="switchTab('dsp')" id="tab-dsp">DSP / Vocal FX</button>
+    <button class="tab-btn" onclick="switchTab('dsp')" id="tab-dsp">Vocal Effect</button>
   </div>
 
   <main>
@@ -96,19 +134,17 @@
     <div id="view-mixer">
       <div class="card">
         <div class="card-title">
-          <span>Master Output Spectrum Visualizer</span>
+          <span>Master Output Visualizer</span>
           <span id="status-text" style="color: var(--accent-magenta);">● Engine Offline</span>
         </div>
         <canvas id="masterCanvas"></canvas>
       </div>
 
-      <div class="mixer-grid">
+      <div class="mixer-grid" style="margin-top: 10px;">
         <div class="channel-strip">
-          <div class="channel-header"><span>🎤 CH 1: HARDWARE MIC</span></div>
+          <div class="channel-header"><span>Microphone</span></div>
           <div class="meter-container"><div id="meter-ch1" class="meter-bar"></div></div>
           <button id="btn-mic-toggle" class="btn btn-green" onclick="toggleMic()">Activate Microphone</button>
-          <div style="font-size:9px; color:var(--accent-orange);">⚠️ Pakai headset. Mic → A1 mati by default biar nggak howling.</div>
-          
           <div class="slider-group">
             <div class="slider-info"><span>Gain Fader</span><span id="val-gain-ch1">100%</span></div>
             <input type="range" min="0" max="2" step="0.05" value="1" oninput="setGain(0, this.value)">
@@ -116,22 +152,22 @@
 
           <div class="route-matrix">
             <button id="r-0-0" class="route-btn" onclick="toggleRoute(0, 0)">A1 (Out)</button>
-            <button id="r-0-1" class="route-btn active-b" onclick="toggleRoute(0, 1)">B1 (Bus)</button>
+            <button id="r-0-1" class="route-btn active-b" onclick="toggleRoute(0, 1)">Record (Bus)</button>
           </div>
         </div>
 
         <div class="channel-strip">
-          <div class="channel-header"><span>🎵 CH 2: MEDIA / KARAOKE</span></div>
+          <div class="channel-header"><span>Music</span></div>
           <div class="meter-container"><div id="meter-ch2" class="meter-bar"></div></div>
 
           <div style="display:flex; flex-direction:column; gap:6px;">
             <div class="file-input-wrapper">
-              <button class="btn" style="width: 100%;">🎵 Upload File MP3/WAV</button>
+              <button class="btn" style="width: 100%;">Upload File MP3/WAV</button>
               <input type="file" accept="audio/*" onchange="handleAudioUpload(event)">
             </div>
 
             <div class="file-input-wrapper">
-              <button class="btn" style="width: 100%; background:#0e2a38; border-color:var(--accent-cyan);">📜 Upload Lirik File (.lrc)</button>
+              <button class="btn" style="width: 100%; background:#0e2a38; border-color:var(--accent-cyan);">Upload Lirik File (.lrc)</button>
               <input type="file" accept=".lrc,.txt" onchange="handleLrcUpload(event)">
             </div>
           </div>
@@ -179,9 +215,29 @@
         </div>
       </div>
 
-      <div class="card" style="margin-top: 6px;">
+      <!-- YOUTUBE INSTRUMENTAL -->
+      <div class="card" style="margin-top: 10px;">
+        <div class="card-title"><span>▶️ YouTube Instrumental</span><span id="yt-status" style="color: var(--text-muted);">–</span></div>
+        <div style="display:flex; gap:6px;">
+          <input id="yt-url" type="text" placeholder="Tempel link YouTube di sini..." style="flex:1; min-width:0; background:#0a0d14; color:var(--text-main); border:1px solid var(--border-color); border-radius:6px; padding:8px; font-size:12px; -webkit-user-select:text; user-select:text;">
+          <button class="btn btn-cyan" onclick="loadYouTube()">Muat</button>
+        </div>
+        <div id="yt-wrap" class="hidden"><div id="yt-player"></div></div>
+        <div class="slider-group">
+          <div class="slider-info"><span>Volume YouTube</span><span id="val-yt-vol">100%</span></div>
+          <input id="yt-vol" type="range" min="0" max="100" step="5" value="100" oninput="setYtVolume(this.value)">
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn" style="flex:1;" onclick="openYouTube()">↗ Buka di YouTube</button>
+          <button class="btn" style="flex:1;" onclick="stopYouTube()">⏹ Tutup Player</button>
+        </div>
+        <div id="yt-help" style="font-size:10px; color:var(--accent-orange);"></div>
+        <div style="font-size:9px; color:var(--text-muted);">Musik YouTube diputar oleh player-nya sendiri, bukan lewat mixer: nggak kena fader CH2/A1/B1 dan nggak ikut direkam. Pakai headset supaya mic nggak menangkap suara speaker. Lirik .lrc yang sudah di-upload ikut sinkron.</div>
+      </div>
+
+      <div class="card" style="margin-top: 10px;">
         <div class="card-title">Master Output Buses</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
           <div class="slider-group">
             <div class="slider-info"><span>A1: Speaker/Headset Out</span><span id="val-master-a">100%</span></div>
             <input type="range" min="0" max="1.5" step="0.05" value="1" oninput="setMasterGain(0, this.value)">
@@ -193,7 +249,7 @@
         </div>
       </div>
 
-      <div class="card" style="margin-top: 6px;">
+      <div class="card" style="margin-top: 10px;">
         <div class="card-title">
           <span>⏺ Record B1 (Lagu + Suara)</span>
           <span id="rec-status" style="color: var(--text-muted);">● Idle 0:00</span>
@@ -210,15 +266,60 @@
 
     <!-- VIEW 2: DSP EFFECTS (ISOLATED FIRST-LINE GATE) -->
     <div id="view-dsp" class="hidden">
-      <!-- MASTER SWITCH DSP -->
+      <!-- DSP MASTER SWITCH + COMPRESSOR + EQUALIZER + ECHO + REVERB (satu kartu) -->
       <div class="card">
-        <div class="card-title">DSP Global Master Switch</div>
+        <div class="card-title">DSP Master Switch &amp; Vocal Shaping</div>
         <div class="toggle-container">
           <span style="font-weight: 700; color: var(--accent-cyan);">🎛️ EFEK VOCAL / DSP MASTER SWITCH <span style="font-weight:400; color:var(--text-muted); font-size:10px;">(Comp, EQ, Echo, Reverb)</span></span>
           <label class="switch">
             <input type="checkbox" id="toggle-dsp" checked onchange="toggleDSPChain()">
             <span class="slider"></span>
           </label>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-info"><span>Low Equalizer (Bass)</span><span id="val-eq-low">0 dB</span></div>
+          <input type="range" min="-12" max="12" step="0.5" value="0" oninput="setEQ('low', this.value)">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-info"><span>Mid Equalizer (Vocal Clarity)</span><span id="val-eq-mid">0 dB</span></div>
+          <input type="range" min="-12" max="12" step="0.5" value="0" oninput="setEQ('mid', this.value)">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-info"><span>High Equalizer (Treble)</span><span id="val-eq-high">0 dB</span></div>
+          <input type="range" min="-12" max="12" step="0.5" value="0" oninput="setEQ('high', this.value)">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-info"><span>Vocal Echo / Delay Time</span><span id="val-delay">0 ms</span></div>
+          <input type="range" min="0" max="0.5" step="0.02" value="0" oninput="setDelay(this.value)">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-info"><span>Vocal Reverb Room Size</span><span id="val-reverb">30%</span></div>
+          <input type="range" min="0" max="0.8" step="0.05" value="0.3" oninput="setReverb(this.value)">
+        </div>
+
+        <div style="background:#0a0d14; padding:8px; border-radius:6px; border:1px solid #1a2234;" class="slider-group">
+          <div class="toggle-container" style="background:transparent; padding:0; border:none; margin-bottom:6px;">
+            <span style="font-weight: 700; color: var(--accent-orange);">🎙️ VOCAL DYNAMICS COMPRESSOR</span>
+            <label class="switch">
+              <input type="checkbox" id="toggle-comp" checked onchange="toggleCompressor()">
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="slider-group">
+            <div class="slider-info"><span>Comp Threshold</span><span id="val-comp-thresh">-24 dB</span></div>
+            <input type="range" min="-60" max="0" step="1" value="-24" oninput="setCompressorThreshold(this.value)">
+          </div>
+          
+          <div class="slider-group">
+            <div class="slider-info"><span>Comp Ratio</span><span id="val-comp-ratio">4:1</span></div>
+            <input type="range" min="1" max="20" step="1" value="4" oninput="setCompressorRatio(this.value)">
+          </div>
         </div>
       </div>
 
@@ -262,58 +363,9 @@
         </div>
         <div style="font-size:9px; color:var(--text-muted);">Pakai headset. Auto-Tune menambah delay ±20–40 ms.</div>
       </div>
-
-      <!-- VOCAL DYNAMICS & EQUALIZER -->
-      <div class="card">
-        <div class="card-title">Dynamics & Vocal Shaping</div>
-
-        <div style="background:#0a0d14; padding:8px; border-radius:6px; border:1px solid #1a2234;" class="slider-group">
-          <div class="toggle-container" style="background:transparent; padding:0; border:none; margin-bottom:6px;">
-            <span style="font-weight: 700; color: var(--accent-orange);">🎙️ VOCAL DYNAMICS COMPRESSOR</span>
-            <label class="switch">
-              <input type="checkbox" id="toggle-comp" checked onchange="toggleCompressor()">
-              <span class="slider"></span>
-            </label>
-          </div>
-          
-          <div class="slider-group">
-            <div class="slider-info"><span>Comp Threshold</span><span id="val-comp-thresh">-24 dB</span></div>
-            <input type="range" min="-60" max="0" step="1" value="-24" oninput="setCompressorThreshold(this.value)">
-          </div>
-          
-          <div class="slider-group">
-            <div class="slider-info"><span>Comp Ratio</span><span id="val-comp-ratio">4:1</span></div>
-            <input type="range" min="1" max="20" step="1" value="4" oninput="setCompressorRatio(this.value)">
-          </div>
-        </div>
-
-        <div class="slider-group">
-          <div class="slider-info"><span>Low Equalizer (Bass)</span><span id="val-eq-low">0 dB</span></div>
-          <input type="range" min="-12" max="12" step="0.5" value="0" oninput="setEQ('low', this.value)">
-        </div>
-
-        <div class="slider-group">
-          <div class="slider-info"><span>Mid Equalizer (Vocal Clarity)</span><span id="val-eq-mid">0 dB</span></div>
-          <input type="range" min="-12" max="12" step="0.5" value="0" oninput="setEQ('mid', this.value)">
-        </div>
-
-        <div class="slider-group">
-          <div class="slider-info"><span>High Equalizer (Treble)</span><span id="val-eq-high">0 dB</span></div>
-          <input type="range" min="-12" max="12" step="0.5" value="0" oninput="setEQ('high', this.value)">
-        </div>
-
-        <div class="slider-group">
-          <div class="slider-info"><span>Vocal Echo / Delay Time</span><span id="val-delay">0 ms</span></div>
-          <input type="range" min="0" max="0.5" step="0.02" value="0" oninput="setDelay(this.value)">
-        </div>
-
-        <div class="slider-group">
-          <div class="slider-info"><span>Vocal Reverb Room Size</span><span id="val-reverb">30%</span></div>
-          <input type="range" min="0" max="0.8" step="0.05" value="0.3" oninput="setReverb(this.value)">
-        </div>
-      </div>
     </div>
   </main>
+</div>
 
   <script>
     let audioCtx = null;
@@ -521,25 +573,21 @@
         if (tuneNode) tuneNode.disconnect();
       } catch(e){}
 
-      // 1. GATE: Selalu paling depan (Isolasi Noise)
       micSourceNode.connect(gateAnalyser);
       micSourceNode.connect(gateGainNode);
       let lastNode = gateGainNode;
 
-      // 2. Compressor (bagian DSP Master Switch)
       if (isDspActive && isCompActive) {
         lastNode.connect(compressorNode);
         lastNode = compressorNode;
       }
 
-      // 3. AUTO-TUNE (Mandiri)
       if (isTuneActive && tuneNode) {
         lastNode.connect(tuneNode);
         lastNode = tuneNode;
       }
 
       if (isDspActive) {
-        // 4. EQ + Delay + Reverb (bagian DSP Master Switch)
         lastNode.connect(eqLow);
         eqLow.connect(eqMid);
         eqMid.connect(eqHigh);
@@ -552,7 +600,7 @@
       }
     }
 
-    // ===== REKAM B1 -> MP3 (128 kbps) =====
+    // ===== REKAM B1 -> MP3 =====
     let limA = null, limB = null;
     let recNode = null, recSink = null, recChunksL = [], recChunksR = [], recRate = 48000;
     let recTimer = null, recStart = 0, recUrl = null, recPCM = null, recFinish = null;
@@ -864,6 +912,87 @@
       TP.speed = v / 100; sendTune();
       document.getElementById('val-tune-speed').innerText = v == 0 ? 'Instan (robot)' : v + '%';
     }
+
+    // ===== YOUTUBE INSTRUMENTAL (player terpisah, tidak lewat mixer) =====
+    let ytPlayer = null, ytReady = false, ytTimer = null, ytApiLoading = null;
+
+    function parseYouTubeId(u) {
+      const t = String(u).trim();
+      const m = t.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/) || t.match(/^([\w-]{11})$/);
+      return m ? m[1] : '';
+    }
+    function ytMsg(t, c) { const el = document.getElementById('yt-status'); el.innerText = t; el.style.color = c || 'var(--text-muted)'; }
+    function ytHelp(t) { document.getElementById('yt-help').innerText = t || ''; }
+
+    function loadYtApi() {
+      if (window.YT && YT.Player) return Promise.resolve();
+      if (ytApiLoading) return ytApiLoading;
+      ytApiLoading = new Promise((res, rej) => {
+        window.onYouTubeIframeAPIReady = () => res();
+        const sc = document.createElement('script');
+        sc.src = 'https://www.youtube.com/iframe_api';
+        sc.onerror = () => { ytApiLoading = null; rej(new Error('Gagal memuat YouTube (butuh internet).')); };
+        document.head.appendChild(sc);
+      });
+      return ytApiLoading;
+    }
+
+    async function loadYouTube() {
+      const id = parseYouTubeId(document.getElementById('yt-url').value);
+      if (!id) { alert('Link YouTube tidak dikenali.'); return; }
+      document.getElementById('yt-wrap').classList.remove('hidden');
+      ytHelp(''); ytMsg('Memuat...');
+      try { await loadYtApi(); } catch (e) { ytMsg('Gagal', 'var(--accent-magenta)'); ytHelp(e.message); return; }
+      if (ytPlayer && ytReady) { ytPlayer.loadVideoById(id); return; }
+      ytPlayer = new YT.Player('yt-player', {
+        videoId: id,
+        playerVars: { playsinline: 1, rel: 0 },
+        events: {
+          onReady: () => { ytReady = true; setYtVolume(document.getElementById('yt-vol').value); ytMsg('Siap'); startYtTimer(); },
+          onStateChange: e => ytMsg(e.data === 1 ? '▶ Play' : e.data === 2 ? '⏸ Pause' : e.data === 3 ? 'Buffering...' : e.data === 0 ? 'Selesai' : 'Siap'),
+          onError: e => {
+            const c = e.data;
+            ytMsg('Error ' + c, 'var(--accent-magenta)');
+            ytHelp(c === 153 || c === 152 ? 'YouTube menolak embed dari halaman file lokal (error ' + c + '). Buka halaman ini lewat http://localhost (mis. Termux: python -m http.server 8080) atau https (GitHub Pages), atau pakai tombol "Buka di YouTube".'
+              : c === 101 || c === 150 ? 'Pemilik video melarang diputar di luar YouTube. Coba video lain atau "Buka di YouTube".'
+              : c === 100 ? 'Video tidak ditemukan atau privat.' : 'Gagal memutar (kode ' + c + ').');
+          }
+        }
+      });
+    }
+
+    function startYtTimer() {
+      if (ytTimer) return;
+      ytTimer = setInterval(() => {
+        if (isPlaying || !ytPlayer || !ytReady || !currentLyrics.length || ytPlayer.getPlayerState() !== 1) return;
+        const elapsed = ytPlayer.getCurrentTime() + lyricOffset;
+        let a = -1;
+        for (let i = 0; i < currentLyrics.length; i++) if (elapsed >= currentLyrics[i].time) a = i;
+        document.getElementById('lyric-current').innerText = currentLyrics[a] ? currentLyrics[a].text : "🎵 Musik Berjalan...";
+        document.getElementById('lyric-next').innerText = `Berikutnya: ${currentLyrics[a + 1] ? currentLyrics[a + 1].text : "(Akhir Lirik)"}`;
+      }, 200);
+    }
+
+    function setYtVolume(v) {
+      document.getElementById('val-yt-vol').innerText = `${v}%`;
+      if (ytPlayer && ytReady) ytPlayer.setVolume(+v);
+    }
+
+    function openYouTube() {
+      const id = parseYouTubeId(document.getElementById('yt-url').value);
+      if (!id) { alert('Tempel link YouTube dulu.'); return; }
+      window.open('https://www.youtube.com/watch?v=' + id, '_blank');
+    }
+
+    function stopYouTube() {
+      if (ytTimer) { clearInterval(ytTimer); ytTimer = null; }
+      if (ytPlayer) { try { ytPlayer.destroy(); } catch (e) {} ytPlayer = null; ytReady = false; }
+      const w = document.getElementById('yt-wrap');
+      w.innerHTML = '<div id="yt-player"></div>'; w.classList.add('hidden');
+      ytMsg('–'); ytHelp('');
+    }
+
+    if (location.protocol === 'file:') ytHelp('Halaman ini dibuka dari file lokal: YouTube biasanya menolak embed (error 153). Solusi: buka lewat http://localhost (mis. Termux: python -m http.server 8080) atau hosting https. Atau pakai "Buka di YouTube".');
 
     function toggleDSPChain() { isDspActive = document.getElementById('toggle-dsp').checked; connectMicNode(); }
     function toggleCompressor() { isCompActive = document.getElementById('toggle-comp').checked; connectMicNode(); }
