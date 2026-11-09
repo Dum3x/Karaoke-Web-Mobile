@@ -306,7 +306,7 @@
     <div id="view-dsp" class="hidden">
       <!-- DSP MASTER SWITCH + COMPRESSOR + EQUALIZER + ECHO + REVERB (satu kartu) -->
       <div class="card">
-        <div class="card-title">DSP Master Switch &amp; Vocal Shaping</div>
+        <div class="card-title">Vocal Effect &amp; Vocal Shaping</div>
         <div class="toggle-container">
           <span style="font-weight: 700; color: var(--accent-cyan);">Effect Vocal<span style="font-weight:400; color:var(--text-muted); font-size:10px;"> (Low EQ,Mid EQ,High EQ, Delay, Reverb)</span></span>
           <label class="switch">
@@ -366,8 +366,8 @@
         <div class="card-title">Noise Gate</div>
         <div class="slider-group">
           <div class="slider-info">
-            <span style="font-weight: 700; color: var(--accent-green);">Noise Gate</span>
-            <span id="val-gate-knob" style="font-weight: 700; color: var(--accent-green);">0.0</span>
+            <span style="font-weight: 700; color: var(--accent-white);">Noise Gate</span>
+            <span id="val-gate-knob" style="font-weight: 700; color: var(--accent-white);">0.0</span>
           </div>
           <input type="range" min="0" max="10" step="0.5" value="0" oninput="setGateKnob(this.value)">
         </div>
