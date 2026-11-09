@@ -289,7 +289,7 @@
 
       <div class="card" style="margin-top: 10px;">
         <div class="card-title">
-          <span>⏺ Record harus aktif recordnya Busnya</span>
+          <span>Record harus aktif recordnya Busnya</span>
           <span id="rec-status" style="color: var(--text-muted);">● Idle 0:00</span>
         </div>
         <button id="btn-rec" class="btn btn-danger" onclick="toggleRecord()">⏺ Mulai Rekam</button>
@@ -595,7 +595,7 @@
         if (!isRunning) { stopMic(); return; }
         micSourceNode = audioCtx.createMediaStreamSource(micStream);
         connectMicNode();
-        document.getElementById('btn-mic-toggle').innerText = '🎤 Mic Connected (tap = matikan)';
+        document.getElementById('btn-mic-toggle').innerText = 'Mic Connected (tap = matikan)';
         document.getElementById('btn-mic-toggle').className = 'btn btn-cyan';
       } catch (err) { stopMic(); alert("Microphone Access Denied: " + err.message); }
     }
