@@ -117,6 +117,10 @@
     main { padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
     #view-mixer, #view-dsp { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
     #view-mixer.hidden, #view-dsp.hidden { display: none !important; }
+    .sub-tab-bar { display: flex; background: #0d121c; border: 1px solid var(--border-color); border-radius: 8px; padding: 4px; gap: 4px; }
+    .sub-tab-bar .tab-btn.active { background: var(--bg-card); color: var(--accent-cyan); border: 1px solid rgba(0, 240, 255, 0.3); }
+    .dsp-pane { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    .dsp-pane.hidden { display: none !important; }
     #view-mixer > *, #view-dsp > * { margin-top: 0 !important; }
     .card { min-width: 0; }
     .btn, .route-btn, .tab-btn { min-height: 38px; }
@@ -130,9 +134,6 @@
       .app-container { max-width: 980px; }
       main { padding: 16px; gap: 16px; }
       canvas { height: 120px; }
-      #view-dsp { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: max-content 1fr; gap: 12px; align-items: start; }
-      #view-dsp.hidden { display: none !important; }
-      #view-dsp > .card:first-child { grid-row: span 2; }
     }
 
     /* PC: Live Mixer dan Vocal Effect tampil berdampingan, tab disembunyikan */
@@ -143,8 +144,7 @@
       main { flex-direction: row; align-items: flex-start; gap: 20px; padding: 20px; }
       #view-mixer, #view-dsp.hidden, #view-mixer.hidden { display: flex !important; }
       #view-mixer { flex: 1.5 1 0; }
-      #view-dsp, #view-dsp.hidden { flex: 1 1 0; display: flex !important; flex-direction: column; grid-template-columns: none; grid-template-rows: none; }
-      #view-dsp > .card:first-child { grid-row: auto; }
+      #view-dsp, #view-dsp.hidden { flex: 1 1 0; display: flex !important; flex-direction: column; }
       canvas { height: 150px; }
       .lyrics-box { min-height: 110px; }
     }
@@ -299,6 +299,13 @@
 
     <!-- VOCALEFFECT -->
     <div id="view-dsp" class="hidden">
+      <div class="sub-tab-bar">
+        <button class="tab-btn active" onclick="switchDspTab('a')" id="dsp-tab-a">Vocal Effect</button>
+        <button class="tab-btn" onclick="switchDspTab('b')" id="dsp-tab-b">Noise &amp; Auto Tune</button>
+      </div>
+
+      <!-- TAB 1: Vocal Effect + Compressor -->
+      <div id="dsp-pane-a" class="dsp-pane">
       <!-- VOCALEFFECT -->
       <div class="card">
         <div class="card-title">Vocal Effect &amp; Vocal Shaping</div>
@@ -355,7 +362,10 @@
           </div>
         </div>
       </div>
+      </div>
 
+      <!-- TAB 2: Noise Gate + Auto Tune + Noise Cleaner -->
+      <div id="dsp-pane-b" class="dsp-pane hidden">
       <!-- NOISEGATE -->
       <div class="card">
         <div class="card-title">Noise Gate</div>
@@ -418,6 +428,7 @@
         </div>
         <div style="font-size:9px; color:var(--text-muted);">Filter dengung listrik + peredam noise otomatis di jalur mic (sebelum Gate). Menambah delay sekitar 10 ms. Kalau suara terdengar "bergelembung", turunkan Strength.</div>
       </div>
+      </div>
     </div>
   </main>
 </div>
@@ -471,7 +482,7 @@
     function initAudioEngine() {
       if (isRunning) return;
       const AudioContext = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new AudioContext({ latencyHint: 'interactive' });
+      audioCtx = new AudioContext({ latencyHint: 0 });
       if (audioCtx.state === 'suspended') audioCtx.resume();
 
       for (let i = 0; i < 2; i++) {
@@ -616,7 +627,7 @@
       if (!isRunning) initAudioEngine();
       try {
         micStream = await navigator.mediaDevices.getUserMedia({
-          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 1 }, latency: { ideal: 0 } }
+          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 2 }, latency: { ideal: 0 } }
         });
         if (!isRunning) { stopMic(); return; }
         micSourceNode = audioCtx.createMediaStreamSource(micStream);
@@ -1451,6 +1462,13 @@
         rafId = requestAnimationFrame(draw);
       }
       draw();
+    }
+
+    function switchDspTab(id) {
+      ['a', 'b'].forEach(t => {
+        document.getElementById(`dsp-pane-${t}`).classList.toggle('hidden', t !== id);
+        document.getElementById(`dsp-tab-${t}`).classList.toggle('active', t === id);
+      });
     }
 
     function switchTab(tabId) {
