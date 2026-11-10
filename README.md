@@ -964,7 +964,7 @@
 
     const CLEAN_CORE = `class CleanCore {
       constructor(sr) {
-        const N = 512; this.N = N; this.H = 128; this.p = { strength: 0.6 }; this.init = 0; this.gv = 1; this.hold = 0;
+        const N = 512; this.N = N; this.H = 128; this.p = { strength: 0.6 }; this.init = 0; this.idleN = 0; this.gv = 1; this.hold = 0;
         this.win = new Float32Array(N); this.frame = new Float32Array(N); this.acc = new Float32Array(N);
         this.re = new Float32Array(N); this.im = new Float32Array(N);
         this.cs = new Float32Array(N / 2); this.sn = new Float32Array(N / 2); this.rev = new Uint16Array(N);
@@ -1020,7 +1020,16 @@
         this.acc.copyWithin(0, H); this.acc.fill(0, N - H);
       }
       run(inp, out) {
-        for (let k = 0; k + this.H <= out.length; k += this.H) this.hop(inp ? inp.subarray(k, k + this.H) : this.zero, out.subarray(k, k + this.H));
+        for (let k = 0; k + this.H <= out.length; k += this.H) {
+          const x = inp ? inp.subarray(k, k + this.H) : null, y = out.subarray(k, k + this.H);
+          let live = false;
+          if (x) for (let i = 0; i < x.length; i++) if (x[i] !== 0) { live = true; break; }
+          // Saat tidak ada input (cleaner dimatikan / mic belum nyala) jangan ikut "belajar" dari sinyal kosong,
+          // supaya profil noise yang sudah dipelajari tidak terhapus.
+          if (!live) { this.idleN++; if (this.idleN > 8) { y.fill(0); continue; } }
+          else { if (this.idleN > 8) { this.frame.fill(0); this.acc.fill(0); } this.idleN = 0; }
+          this.hop(x || this.zero, y);
+        }
       }
     }`;
 
