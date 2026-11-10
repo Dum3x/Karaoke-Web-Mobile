@@ -251,9 +251,10 @@
       <div class="card" style="margin-top: 10px;">
         <div class="card-title"><span>YouTube Instrumental</span><span id="yt-status" style="color: var(--text-muted);">–</span></div>
         <div style="display:flex; gap:6px;">
-          <input id="yt-url" type="text" placeholder="Tempel link YouTube di sini..." style="flex:1; min-width:0; background:#0a0d14; color:var(--text-main); border:1px solid var(--border-color); border-radius:6px; padding:8px; font-size:12px; -webkit-user-select:text; user-select:text;">
+          <input id="yt-url" type="text" placeholder="Tempel link YouTube / ketik judul lagu..." style="flex:1; min-width:0; background:#0a0d14; color:var(--text-main); border:1px solid var(--border-color); border-radius:6px; padding:8px; font-size:12px; -webkit-user-select:text; user-select:text;">
           <button class="btn btn-cyan" onclick="loadYouTube()">Muat</button>
         </div>
+        <button class="btn btn-cyan" onclick="openYouTubeSite()">Buka YouTube (cari lagu di sana)</button>
         <div id="yt-wrap" class="hidden"><div id="yt-player"></div></div>
         <div class="slider-group">
           <div class="slider-info"><span>Volume YouTube</span><span id="val-yt-vol">100%</span></div>
@@ -264,7 +265,7 @@
           <button class="btn" style="flex:1;" onclick="stopYouTube()">Tutup Player</button>
         </div>
         <div id="yt-help" style="font-size:10px; color:var(--accent-orange);"></div>
-        <div style="font-size:9px; color:var(--text-muted);">Musik YouTube diputar oleh player-nya sendiri gak bisa di record.</div>
+        <div style="font-size:9px; color:var(--text-muted);">Ketik judul lalu tekan Buka YouTube, pilih video, salin link-nya, tempel di kolom atas lalu tekan Muat. Musik YouTube diputar oleh player-nya sendiri gak bisa di record.</div>
       </div>
 
       <div class="card" style="margin-top: 10px;">
@@ -390,8 +391,8 @@
           <input type="range" min="0" max="100" step="5" value="100" oninput="setTuneAmount(this.value)">
         </div>
         <div class="slider-group">
-          <div class="slider-info"><span>Retune Speed</span><span id="val-tune-speed">00%</span></div>
-          <input type="range" min="0" max="100" step="5" value="00" oninput="setTuneSpeed(this.value)">
+          <div class="slider-info"><span>Retune Speed</span><span id="val-tune-speed">Instan (robot)</span></div>
+          <input type="range" min="0" max="100" step="5" value="0" oninput="setTuneSpeed(this.value)">
         </div>
         <div style="font-size:9px; color:var(--text-muted);">Pakai headset. Auto Tune menambah delay ±20–40 ms.</div>
       </div>
@@ -448,7 +449,7 @@
     let gateGainNode = null;
     let gateAnalyser = null;
     let gateInterval = null;
-    let gateKnobValue = 3.0;
+    let gateKnobValue = 0.0;
 
     let compressorNode = null;
     let eqLow = null, eqMid = null, eqHigh = null;
@@ -825,14 +826,14 @@
 
     // ===== AUTOTUNE =====
     let tuneNode = null, tuneCore = null, isTuneActive = false;
-    const TP = { key: 0, mode: 'chromatic', amount: 1, speed: 0.2 };
+    const TP = { key: 0, mode: 'chromatic', amount: 1, speed: 0 };
     const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
     const TUNE_CORE = `class TuneCore {
       constructor(sr, post) {
         this.sr = sr; this.post = post;
         this.buf = new Float32Array(8192); this.w = 0; this.cnt = 0; this.miss = 0; this.msg = 0;
-        this.p = { key: 0, mode: 'chromatic', amount: 1, speed: 0.2 };
+        this.p = { key: 0, mode: 'chromatic', amount: 1, speed: 0 };
         this.ph = 0; this.ratio = 1; this.tRatio = 1; this.W = 2048; this.Wt = 2048;
         this.d = new Float32Array(768); this.cm = new Float32Array(320);
       }
@@ -959,7 +960,7 @@
 
     const CLEAN_CORE = `class CleanCore {
       constructor(sr) {
-        const N = 512; this.N = N; this.H = 128; this.p = { strength: 0.6 }; this.init = 0;
+        const N = 512; this.N = N; this.H = 128; this.p = { strength: 0.6 }; this.init = 0; this.gv = 1; this.hold = 0;
         this.win = new Float32Array(N); this.frame = new Float32Array(N); this.acc = new Float32Array(N);
         this.re = new Float32Array(N); this.im = new Float32Array(N);
         this.cs = new Float32Array(N / 2); this.sn = new Float32Array(N / 2); this.rev = new Uint16Array(N);
@@ -988,18 +989,25 @@
         for (let i = 0; i < N; i++) { re[i] = this.frame[i] * w[i]; im[i] = 0; }
         this.fft(re, im);
         const s = this.p.strength, alpha = 1.5 + 3.5 * s, gmin = Math.pow(10, -(8 + 22 * s) / 20), n0 = this.init < 24;
+        let tp = 0, tn = 0;
         for (let k = 0; k < B; k++) {
           const pw = re[k] * re[k] + im[k] * im[k] + 1e-12;
           ps[k] = this.init === 0 ? pw : 0.8 * ps[k] + 0.2 * pw;
           if (n0) nz[k] += (ps[k] - nz[k]) / (this.init + 1);
-          else nz[k] = ps[k] < nz[k] ? ps[k] : nz[k] * 1.0008;
+          else nz[k] = ps[k] < 3 * nz[k] ? nz[k] + 0.02 * (ps[k] - nz[k]) : nz[k] * 1.0003;
+          if (k >= 1 && k <= 64) { tp += pw; tn += nz[k]; }
           const p2 = Math.max(pw, ps[k]);
           let G = Math.sqrt(Math.max(1 - alpha * nz[k] / p2, 0)); if (G < gmin) G = gmin;
           g[k] = G > g[k] ? 0.5 * g[k] + 0.5 * G : 0.85 * g[k] + 0.15 * G;
         }
         this.init++;
+        if (this.init > 24) {
+          if (tp > 2.5 * tn) { this.hold = 40; this.gv += (1 - this.gv) * 0.6; }
+          else if (this.hold > 0) this.hold--;
+          else this.gv = Math.max(Math.pow(10, -(10 + 20 * s) / 20), this.gv * 0.96);
+        }
         for (let k = 0; k < B; k++) gs[k] = 0.25 * g[k > 0 ? k - 1 : 0] + 0.5 * g[k] + 0.25 * g[k < B - 1 ? k + 1 : B - 1];
-        for (let k = 0; k < B; k++) { re[k] *= gs[k]; im[k] *= gs[k]; }
+        for (let k = 0; k < B; k++) { re[k] *= gs[k] * this.gv; im[k] *= gs[k] * this.gv; }
         for (let k = 1; k < N / 2; k++) { re[N - k] = re[k]; im[N - k] = -im[k]; }
         for (let i = 0; i < N; i++) im[i] = -im[i];
         this.fft(re, im);
@@ -1120,7 +1128,7 @@
 
     async function loadYouTube() {
       const id = parseYouTubeId(document.getElementById('yt-url').value);
-      if (!id) { alert('Link YouTube tidak dikenali.'); return; }
+      if (!id) { openYouTubeSite(); return; }
       document.getElementById('yt-wrap').classList.remove('hidden');
       ytHelp(''); ytMsg('Memuat...');
       try { await loadYtApi(); } catch (e) { ytMsg('Gagal', 'var(--accent-magenta)'); ytHelp(e.message); return; }
@@ -1157,6 +1165,14 @@
     function setYtVolume(v) {
       document.getElementById('val-yt-vol').innerText = `${v}%`;
       if (ytPlayer && ytReady) ytPlayer.setVolume(+v);
+    }
+
+    function openYouTubeSite() {
+      const q = document.getElementById('yt-url').value.trim();
+      const id = /youtu/i.test(q) ? parseYouTubeId(q) : '';
+      if (id) { window.open('https://www.youtube.com/watch?v=' + id, '_blank'); return; }
+      const term = q && !/instrumental|karaoke/i.test(q) ? q + ' instrumental' : q;
+      window.open(term ? 'https://www.youtube.com/results?search_query=' + encodeURIComponent(term) : 'https://www.youtube.com/', '_blank');
     }
 
     function openYouTube() {
