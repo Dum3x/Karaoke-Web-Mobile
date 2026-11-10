@@ -14,7 +14,6 @@
       --accent-orange: #ff9900;
       --text-main: #e2e8f0;
       --text-muted: #64748b;
-      --accent-white: #ffffff;
       --border-color: #1e293b;
     }
 
@@ -136,32 +135,18 @@
       #view-dsp > .card:first-child { grid-row: span 2; }
     }
 
-    /* PC: Live Mixer (kiri) dan Vocal Effect (kanan) berdampingan, tab disembunyikan */
+    /* PC: Live Mixer dan Vocal Effect tampil berdampingan, tab disembunyikan */
     @media (min-width: 1100px) {
       body { font-size: 14px; }
       .app-container { max-width: 1400px; }
       .tab-bar { display: none; }
-      main { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: start; gap: 20px; padding: 20px; }
-
-      /* Kolom kiri: grid 2 kolom rapi */
-      #view-mixer, #view-mixer.hidden { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
-      #view-mixer .mixer-grid { display: contents; }
-      #view-mixer .card-viz { grid-column: 1 / -1; grid-row: 1; }
-      #view-mixer .mixer-grid > .channel-strip:nth-child(1) { grid-column: 1; grid-row: 2; }
-      #view-mixer .card-master { grid-column: 1; grid-row: 3; }
-      #view-mixer .card-rec { grid-column: 1; grid-row: 4; }
-      #view-mixer .mixer-grid > .channel-strip:nth-child(2) { grid-column: 2; grid-row: 2 / span 3; }
-      #view-mixer .card-yt { grid-column: 1 / -1; grid-row: 5; }
-      #view-mixer .channel-strip .route-matrix { margin-top: auto; }
-
-      /* Kolom kanan: kartu efek bertumpuk, lebar sama */
-      #view-dsp, #view-dsp.hidden { display: flex !important; flex-direction: column; align-items: stretch; gap: 14px; grid-template-columns: none; grid-template-rows: none; }
-      #view-dsp > .card { width: 100%; }
+      main { flex-direction: row; align-items: flex-start; gap: 20px; padding: 20px; }
+      #view-mixer, #view-dsp.hidden, #view-mixer.hidden { display: flex !important; }
+      #view-mixer { flex: 1.5 1 0; }
+      #view-dsp, #view-dsp.hidden { flex: 1 1 0; display: flex !important; flex-direction: column; grid-template-columns: none; grid-template-rows: none; }
       #view-dsp > .card:first-child { grid-row: auto; }
-
       canvas { height: 150px; }
       .lyrics-box { min-height: 110px; }
-      .card { padding: 14px; }
     }
   </style>
 </head>
@@ -184,7 +169,7 @@
   <main>
     <!-- LIVE MIXER -->
     <div id="view-mixer">
-      <div class="card card-viz">
+      <div class="card">
         <div class="card-title">
           <span>Master Output Visualizer</span>
           <span id="status-text" style="color: var(--accent-magenta);">● Engine Offline</span>
@@ -263,7 +248,7 @@
       </div>
 
       <!-- YOUTUBE INSTRUMENTAL -->
-      <div class="card card-yt" style="margin-top: 10px;">
+      <div class="card" style="margin-top: 10px;">
         <div class="card-title"><span>YouTube Instrumental</span><span id="yt-status" style="color: var(--text-muted);">–</span></div>
         <div style="display:flex; gap:6px;">
           <input id="yt-url" type="text" placeholder="Tempel link YouTube / ketik judul lagu..." style="flex:1; min-width:0; background:#0a0d14; color:var(--text-main); border:1px solid var(--border-color); border-radius:6px; padding:8px; font-size:12px; -webkit-user-select:text; user-select:text;">
@@ -283,7 +268,7 @@
         <div style="font-size:9px; color:var(--text-muted);">Ketik judul lalu tekan Buka YouTube, pilih video, salin link-nya, tempel di kolom atas lalu tekan Muat. Musik YouTube diputar oleh player-nya sendiri gak bisa di record.</div>
       </div>
 
-      <div class="card card-master" style="margin-top: 10px;">
+      <div class="card" style="margin-top: 10px;">
         <div class="card-title">Master Output Bus</div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
           <div class="slider-group">
@@ -297,9 +282,9 @@
         </div>
       </div>
 
-      <div class="card card-rec" style="margin-top: 10px;">
+      <div class="card" style="margin-top: 10px;">
         <div class="card-title">
-          <span>Recorder</span>
+          <span>Record harus aktif recordnya Busnya</span>
           <span id="rec-status" style="color: var(--text-muted);">● Idle 0:00</span>
         </div>
         <button id="btn-rec" class="btn btn-danger" onclick="toggleRecord()">Start Record</button>
@@ -308,7 +293,7 @@
           <div id="rec-info" style="font-size:10px; color:var(--text-muted);"></div>
           <button class="btn btn-green" onclick="saveRecording()">Simpan MP3 (128 kbps)</button>
         </div>
-        <div style="font-size:9px; color:var(--text-muted);">Pastikan tombol Record (Bus) di Microphone dan Music menyala supaya ikut terekam, sesuai slider Bus Rekam. Disimpan sebagai MP3 128 kbps.</div>
+        <div style="font-size:9px; color:var(--text-muted);">Yang direkam semua channel recordnya harus aktif ya (mic + lagu), sesuai fader dan slider B1. Disimpan sebagai MP3 128 kbps.</div>
       </div>
     </div>
 
@@ -629,6 +614,10 @@
         });
         if (!isRunning) { stopMic(); return; }
         micSourceNode = audioCtx.createMediaStreamSource(micStream);
+        // Monitor (Out) mic otomatis ON setiap kali microphone diaktifkan
+        routing[0][0] = 1;
+        document.getElementById('r-0-0').classList.add('active-a');
+        updateRoutingConnections();
         connectMicNode();
         document.getElementById('btn-mic-toggle').innerText = 'Mic Connected (tap = matikan)';
         document.getElementById('btn-mic-toggle').className = 'btn btn-cyan';
