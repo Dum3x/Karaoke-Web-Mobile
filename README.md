@@ -529,6 +529,12 @@
       document.getElementById('btn-power').className = 'btn btn-danger';
       document.getElementById('status-text').innerText = '● Live Audio Engine';
       document.getElementById('status-text').style.color = 'var(--accent-green)';
+      const ctxLat = audioCtx;
+      setTimeout(() => {
+        if (!isRunning || audioCtx !== ctxLat) return;
+        const ms = Math.round(((ctxLat.baseLatency || 0) + (ctxLat.outputLatency || 0)) * 1000);
+        if (ms > 0) document.getElementById('status-text').innerText = `● Live Audio Engine · output ±${ms} ms`;
+      }, 1000);
 
       renderVisualizers();
     }
@@ -610,7 +616,7 @@
       if (!isRunning) initAudioEngine();
       try {
         micStream = await navigator.mediaDevices.getUserMedia({
-          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+          audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: { ideal: 1 }, latency: { ideal: 0 } }
         });
         if (!isRunning) { stopMic(); return; }
         micSourceNode = audioCtx.createMediaStreamSource(micStream);
@@ -935,7 +941,7 @@
       }
       if (!node) {
         core = new (new Function(TUNE_CORE + '; return TuneCore;')())(ctx.sampleRate, showTune);
-        node = ctx.createScriptProcessor(2048, 1, 1);
+        node = ctx.createScriptProcessor(512, 1, 1);
         node.onaudioprocess = e => core.run(e.inputBuffer.getChannelData(0), e.outputBuffer.getChannelData(0));
       }
       if (ctx !== audioCtx) return;
@@ -1062,7 +1068,7 @@
       }
       if (!node) {
         core = new (new Function(CLEAN_CORE + '; return CleanCore;')())(ctx.sampleRate);
-        node = ctx.createScriptProcessor(2048, 1, 1);
+        node = ctx.createScriptProcessor(512, 1, 1);
         node.onaudioprocess = e => core.run(e.inputBuffer.getChannelData(0), e.outputBuffer.getChannelData(0));
       }
       if (ctx !== audioCtx) return;
