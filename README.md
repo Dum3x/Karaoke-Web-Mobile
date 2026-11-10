@@ -395,6 +395,28 @@
         </div>
         <div style="font-size:9px; color:var(--text-muted);">Pakai headset. Auto Tune menambah delay ±20–40 ms.</div>
       </div>
+
+      <!-- NOISE CLEANER -->
+      <div class="card">
+        <div class="card-title"><span>Noise Cleaner</span><span id="clean-status" style="color: var(--text-muted);">–</span></div>
+        <div class="toggle-container">
+          <span style="font-weight: 700; color: var(--accent-cyan);">Anti Dengung &amp; Desis Mic</span>
+          <label class="switch">
+            <input type="checkbox" id="toggle-clean" checked onchange="toggleClean()">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <select class="sel" id="clean-hum" onchange="setCleanHum(this.value)">
+          <option value="50">Dengung listrik 50 Hz (Indonesia)</option>
+          <option value="60">Dengung listrik 60 Hz</option>
+          <option value="0">Tanpa notch dengung (filter bass saja)</option>
+        </select>
+        <div class="slider-group">
+          <div class="slider-info"><span>Strength (peredam desis / noise)</span><span id="val-clean">60%</span></div>
+          <input type="range" min="0" max="100" step="5" value="60" oninput="setCleanStrength(this.value)">
+        </div>
+        <div style="font-size:9px; color:var(--text-muted);">Filter dengung listrik + peredam noise otomatis di jalur mic (sebelum Gate). Menambah delay sekitar 10 ms. Kalau suara terdengar "bergelembung", turunkan Strength.</div>
+      </div>
     </div>
   </main>
 </div>
@@ -498,6 +520,7 @@
       applyState();
       updateRoutingConnections();
       startAudibilityGateProcessor();
+      if (isCleanActive) setupClean().then(connectMicNode).catch(() => {});
       if (isTuneActive) setupAutotune().then(connectMicNode).catch(e => { isTuneActive = false; document.getElementById('toggle-tune').checked = false; alert(e.message); });
 
       isRunning = true;
@@ -511,7 +534,7 @@
 
     function stopAudioEngine() {
       stopRecording();
-      tuneNode = null; tuneCore = null;
+      tuneNode = null; tuneCore = null; cleanNodes = null; cleanCore = null;
       if (isPlaying && audioCtx) pauseOffset = audioCtx.currentTime - startTime;
       isPlaying = false;
       if (gateInterval) { clearInterval(gateInterval); gateInterval = null; }
@@ -605,9 +628,10 @@
         if (eqLow) eqLow.disconnect();
         if (tuneNode) tuneNode.disconnect();
       } catch(e){}
+      if (cleanNodes) [cleanNodes.hpf, ...cleanNodes.notches, cleanNodes.node].forEach(n => { try { n.disconnect(); } catch(e){} });
 
       micSourceNode.connect(gateAnalyser);
-      micSourceNode.connect(gateGainNode);
+      connectCleanFront();
       let lastNode = gateGainNode;
 
       if (isDspActive && isCompActive) {
@@ -927,6 +951,130 @@
       isTuneActive = on; connectMicNode();
       if (!on) document.getElementById('tune-note').innerText = '–';
     }
+
+    // ===== NOISE CLEANER: filter dengung listrik (HPF + notch) + peredam noise spektral (AudioWorklet) =====
+    let isCleanActive = true, cleanNodes = null, cleanCore = null;
+    const CP = { strength: 0.6, hum: 50 };
+    document.getElementById('toggle-clean').checked = isCleanActive;
+
+    const CLEAN_CORE = `class CleanCore {
+      constructor(sr) {
+        const N = 512; this.N = N; this.H = 128; this.p = { strength: 0.6 }; this.init = 0;
+        this.win = new Float32Array(N); this.frame = new Float32Array(N); this.acc = new Float32Array(N);
+        this.re = new Float32Array(N); this.im = new Float32Array(N);
+        this.cs = new Float32Array(N / 2); this.sn = new Float32Array(N / 2); this.rev = new Uint16Array(N);
+        const B = N / 2 + 1; this.noise = new Float32Array(B); this.ps = new Float32Array(B); this.g = new Float32Array(B).fill(1); this.gs = new Float32Array(B);
+        this.zero = new Float32Array(128);
+        for (let i = 0; i < N; i++) this.win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * (i + 0.5) / N);
+        for (let i = 0; i < N / 2; i++) { this.cs[i] = Math.cos(2 * Math.PI * i / N); this.sn[i] = -Math.sin(2 * Math.PI * i / N); }
+        const bits = Math.log2(N);
+        for (let i = 0; i < N; i++) { let r = 0; for (let k = 0; k < bits; k++) if (i & (1 << k)) r |= 1 << (bits - 1 - k); this.rev[i] = r; }
+      }
+      fft(re, im) {
+        const N = this.N, rev = this.rev;
+        for (let i = 0; i < N; i++) { const j = rev[i]; if (j > i) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+        for (let size = 2; size <= N; size <<= 1) {
+          const half = size >> 1, step = N / size;
+          for (let i = 0; i < N; i += size) for (let j = 0, k = 0; j < half; j++, k += step) {
+            const a = i + j, b = a + half, c = this.cs[k], s = this.sn[k];
+            const tr = re[b] * c - im[b] * s, ti = re[b] * s + im[b] * c;
+            re[b] = re[a] - tr; im[b] = im[a] - ti; re[a] += tr; im[a] += ti;
+          }
+        }
+      }
+      hop(x, y) {
+        const N = this.N, H = this.H, B = N / 2 + 1, w = this.win, re = this.re, im = this.im, ps = this.ps, nz = this.noise, g = this.g, gs = this.gs;
+        this.frame.copyWithin(0, H); this.frame.set(x, N - H);
+        for (let i = 0; i < N; i++) { re[i] = this.frame[i] * w[i]; im[i] = 0; }
+        this.fft(re, im);
+        const s = this.p.strength, alpha = 1.5 + 3.5 * s, gmin = Math.pow(10, -(8 + 22 * s) / 20), n0 = this.init < 24;
+        for (let k = 0; k < B; k++) {
+          const pw = re[k] * re[k] + im[k] * im[k] + 1e-12;
+          ps[k] = this.init === 0 ? pw : 0.8 * ps[k] + 0.2 * pw;
+          if (n0) nz[k] += (ps[k] - nz[k]) / (this.init + 1);
+          else nz[k] = ps[k] < nz[k] ? ps[k] : nz[k] * 1.0008;
+          const p2 = Math.max(pw, ps[k]);
+          let G = Math.sqrt(Math.max(1 - alpha * nz[k] / p2, 0)); if (G < gmin) G = gmin;
+          g[k] = G > g[k] ? 0.5 * g[k] + 0.5 * G : 0.85 * g[k] + 0.15 * G;
+        }
+        this.init++;
+        for (let k = 0; k < B; k++) gs[k] = 0.25 * g[k > 0 ? k - 1 : 0] + 0.5 * g[k] + 0.25 * g[k < B - 1 ? k + 1 : B - 1];
+        for (let k = 0; k < B; k++) { re[k] *= gs[k]; im[k] *= gs[k]; }
+        for (let k = 1; k < N / 2; k++) { re[N - k] = re[k]; im[N - k] = -im[k]; }
+        for (let i = 0; i < N; i++) im[i] = -im[i];
+        this.fft(re, im);
+        for (let i = 0; i < N; i++) this.acc[i] += re[i] / N * w[i] * 0.6666667;
+        for (let i = 0; i < H; i++) y[i] = this.acc[i];
+        this.acc.copyWithin(0, H); this.acc.fill(0, N - H);
+      }
+      run(inp, out) {
+        for (let k = 0; k + this.H <= out.length; k += this.H) this.hop(inp ? inp.subarray(k, k + this.H) : this.zero, out.subarray(k, k + this.H));
+      }
+    }`;
+
+    const CLEAN_WORKLET = CLEAN_CORE + `
+    class CleanProc extends AudioWorkletProcessor {
+      constructor(opts) {
+        super(); this.c = new CleanCore(sampleRate);
+        if (opts && opts.processorOptions) Object.assign(this.c.p, opts.processorOptions);
+        this.port.onmessage = e => { Object.assign(this.c.p, e.data); };
+      }
+      process(inputs, outputs) {
+        const out = outputs[0][0];
+        if (out) this.c.run(inputs[0][0], out);
+        return true;
+      }
+    }
+    registerProcessor('clean-proc', CleanProc);`;
+
+    async function setupClean() {
+      const ctx = audioCtx;
+      if (!ctx) return;
+      const hpf = ctx.createBiquadFilter(); hpf.type = 'highpass'; hpf.frequency.value = 80; hpf.Q.value = 0.707;
+      const notches = [1, 2, 3].map(() => { const n = ctx.createBiquadFilter(); n.type = 'notch'; n.Q.value = 30; return n; });
+      let node = null, core = null;
+      if (ctx.audioWorklet) {
+        try {
+          if (!ctx._cleanLoaded) { await addWorklet(ctx, CLEAN_WORKLET); ctx._cleanLoaded = true; }
+          node = new AudioWorkletNode(ctx, 'clean-proc', { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1], channelCount: 1, channelCountMode: 'explicit', processorOptions: { strength: CP.strength } });
+        } catch (err) { node = null; }
+      }
+      if (!node) {
+        core = new (new Function(CLEAN_CORE + '; return CleanCore;')())(ctx.sampleRate);
+        node = ctx.createScriptProcessor(2048, 1, 1);
+        node.onaudioprocess = e => core.run(e.inputBuffer.getChannelData(0), e.outputBuffer.getChannelData(0));
+      }
+      if (ctx !== audioCtx) return;
+      cleanCore = core; cleanNodes = { hpf, notches, node }; applyClean();
+    }
+
+    function applyClean() {
+      if (!cleanNodes) return;
+      cleanNodes.notches.forEach((n, i) => { n.frequency.value = (CP.hum || 50) * (i + 1); });
+      if (cleanCore) cleanCore.p.strength = CP.strength;
+      else if (cleanNodes.node.port) cleanNodes.node.port.postMessage({ strength: CP.strength });
+    }
+
+    function connectCleanFront() {
+      if (!isCleanActive || !cleanNodes) { micSourceNode.connect(gateGainNode); return; }
+      let prev = micSourceNode;
+      [cleanNodes.hpf, ...(CP.hum ? cleanNodes.notches : []), cleanNodes.node].forEach(n => { prev.connect(n); prev = n; });
+      prev.connect(gateGainNode);
+    }
+
+    function cleanStatus() { document.getElementById('clean-status').innerText = isCleanActive ? 'Aktif' : 'Mati'; document.getElementById('clean-status').style.color = isCleanActive ? 'var(--accent-green)' : 'var(--text-muted)'; }
+
+    async function toggleClean() {
+      const cb = document.getElementById('toggle-clean'), on = cb.checked;
+      if (!isRunning) { isCleanActive = on; cleanStatus(); return; }
+      if (on && !cleanNodes) {
+        try { await setupClean(); } catch (e) { cb.checked = false; alert(e.message); return; }
+      }
+      isCleanActive = on; connectMicNode(); cleanStatus();
+    }
+    function setCleanHum(v) { CP.hum = +v; applyClean(); if (isRunning) connectMicNode(); }
+    function setCleanStrength(v) { CP.strength = v / 100; document.getElementById('val-clean').innerText = `${v}%`; applyClean(); }
+    cleanStatus();
 
     function noteName(m) { const n = Math.round(m); return NOTE_NAMES[((n % 12) + 12) % 12] + (Math.floor(n / 12) - 1); }
     function showTune(d) {
